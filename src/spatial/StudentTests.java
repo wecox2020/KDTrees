@@ -18,7 +18,7 @@ import static org.junit.Assert.*;
 import static spatial.kdpoint.KDPoint.*;
 
 /**
- * <p>A testing framework for {@link projects.spatial.trees.KDTree} and {@link projects.spatial.trees.PRQuadTree}</p>.
+ * <p>A testing framework for {@link spatial.trees.KDTree} and {@link spatial.trees.PRQuadTree}</p>.
  * You should extend it with your own tests.
  *
  * @author  --- YOUR NAME HERE! ---

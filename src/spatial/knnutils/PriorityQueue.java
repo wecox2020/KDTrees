@@ -30,7 +30,7 @@ public interface PriorityQueue<T> extends Iterable<T>{
 	 * @param element The element to insert in the queue.
 	 * @param priority The priority of the element. Encoded as an arbitrary precision {@link BigDecimal}.
 	 *
-	 * @see projects.spatial.kdpoint.KDPoint#distanceSquared(KDPoint)
+	 * @see spatial.kdpoint.KDPoint#distanceSquared(KDPoint)
 	 * @see BigDecimal
 	 */
 	void enqueue(T element, BigDecimal priority);

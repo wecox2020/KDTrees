@@ -10,13 +10,13 @@ import java.util.Collection;
 
 /**
  * <p>{@link KDTreeNode} is an abstraction over nodes of a KD-Tree. It is used extensively by
- * {@link projects.spatial.trees.KDTree} to implement its functionality.</p>
+ * {@link spatial.trees.KDTree} to implement its functionality.</p>
  *
  * <p><b>YOU ***** MUST ***** IMPLEMENT THIS CLASS!</b></p>
  *
  * @author  ---- YOUR NAME HERE! -----
  *
- * @see projects.spatial.trees.KDTree
+ * @see spatial.trees.KDTree
  */
 public class KDTreeNode {
 
