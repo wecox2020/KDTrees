@@ -152,12 +152,12 @@ public class KDPoint {
 	public BigDecimal distanceSquared(KDPoint p) throws RuntimeException{
 		if(coords.length != p.coords.length)
 			throw new RuntimeException("Cannot calculate the Euclidean Distance between KDPoints of different dimensionalities.");
-		BigDecimal sum = BigDecimal.ZERO;
+		double sum = 0.0;
 		for(int i = 0; i < coords.length; i++)
-			sum = sum.add((coords[i].subtract(p.coords[i])).pow(2));
-		return sum;
+			sum += Math.pow(coords[i].doubleValue()- p.coords[i].doubleValue(), 2);
+		return new BigDecimal(sum);
 	}
-
+	
 	/**
 	 * A static version of distance calculations. Since the Squared Euclidean distance is symmetric,
 	 * it's somewhat awkward to have to specify a start and end point, as {@link #distanceSquared(KDPoint) distanceSquared} does,

@@ -3,6 +3,7 @@ package spatial.trees;
 import spatial.kdpoint.KDPoint;
 import spatial.knnutils.BoundedPriorityQueue;
 import spatial.knnutils.NNData;
+import spatial.nodes.KDTreeNode;
 import spatial.nodes.PRQuadBlackNode;
 import spatial.nodes.PRQuadGrayNode;
 import spatial.nodes.PRQuadNode;
@@ -184,10 +185,10 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
 
     /**
      * A simple tree description generator for VizTree/CompactVizTree. It returns a string representation for the QuadTree
-     * This tree representation follows jimblackler style(http://jimblackler.net/treefun/index.html).
+     * This tree representation follows jimblackler style(http://jimblackler.net/treefun/index.html)
      * To identify child-index (left/right or NW,NE,SW,SE), I use "*" as special character to indicate null leafs
      * @param verbose whether to print the tree description to stdout or not
-     * @return An {@link ArrayList} that gives a string-fied representation of the PR-QuadTree.
+     * @return a string representation for the QuadTree.
      */
     public ArrayList<String> treeDescription(boolean verbose)
     {
@@ -223,8 +224,8 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
                     treedump.append("*");
                 }
                 else {
-                    visTreeDesc.append("\nP:").append(point.compactToString());
-                    treedump.append(" , P:").append(point.compactToString());
+                    visTreeDesc.append("\nP:" + point.compactToString());
+                    treedump.append(" , P:" + point.compactToString());
                 }
             }
 
