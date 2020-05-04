@@ -186,8 +186,8 @@ public class KDTreeNode {
     /**
      * Returns the height of the subtree rooted at the current node. Recall our definition of height for binary trees:
      * <ol>
-     *     <li>A null tree has a height of 0.</li>
-     *     <li>A non-null tree has a height equal to max(height(left_subtree), height(right_subtree))</li>
+     *     <li>A null tree has a height of -1.</li>
+     *     <li>A non-null tree has a height equal to max(height(left_subtree), height(right_subtree))+1</li>
      * </ol>
      * @return the height of the subtree rooted at the current node.
      */
