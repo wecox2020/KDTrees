@@ -23,7 +23,7 @@ public interface SpatialQuerySolver {
 
     /**
      * Performs a range query. Returns all the {@link KDPoint}s whose {@link KDPoint#distanceSquared(KDPoint) distanceSquared} from
-     * p is at most range, <b>INCLUSIVE</b>.
+     * p is at most range squared, <b>INCLUSIVE</b>.
      * @param p The query {@link KDPoint}.
      * @param range The maximum {@link KDPoint#distanceSquared(KDPoint, KDPoint) distance} from p
      * that we allow a {@link KDPoint} to have if it should be part of the solution.

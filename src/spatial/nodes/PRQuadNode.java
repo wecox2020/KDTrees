@@ -158,7 +158,7 @@ public abstract class PRQuadNode {
 
     /**
      * <p>Executes a range query in the given {@link PRQuadNode}. Given an &quot;anchor&quot; {@link KDPoint},
-     * all {@link KDPoint}s that have a {@link KDPoint#distanceSquared(KDPoint) distanceSquared} of <b>at most</b> range
+     * all {@link KDPoint}s that have a {@link KDPoint#distanceSquared(KDPoint) distanceSquared} of <b>at most</b> range squared
      * <b>INCLUSIVE</b> from the anchor point <b>except</b> for the anchor itself should be inserted into the {@link Collection}
      * that is passed.</p>
      *
