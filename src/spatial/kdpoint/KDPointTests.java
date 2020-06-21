@@ -1,15 +1,13 @@
 package spatial.kdpoint;
 
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
+import org.junit.rules.ExpectedException;
 
-import java.math.BigDecimal;
 import java.util.Random;
 
 import static org.junit.Assert.*;
-import static spatial.kdpoint.KDPoint.distanceSquared;
+import static spatial.kdpoint.KDPoint.ZERO;
+import static spatial.kdpoint.KDPoint.euclideanDistance;
 
 /**
  * <p>{@link KDPointTests} is a unit testing class for {@link KDPoint}. It has next to nothing
@@ -21,228 +19,193 @@ import static spatial.kdpoint.KDPoint.distanceSquared;
  * because of precision issues. In fact, it is recommended that one uses {@link java.math.BigDecimal} instead,
  * which offers arbitrary long precision.</p>
  *
- * @author <a href = "https://github.com/JasonFil">Jason Filippou</a>
+ * @author <a href = "https://github.com/jasonfilippou">Jason Filippou</a>
  */
 public class KDPointTests {
 
-	private KDPoint origin2D, origin3D;
-	private Random r;
-	private static final int SEED = 47;
-	private static final int MAX_ITER = 100000;
-	private static final int MAX_DIM = 1000;
+    private KDPoint origin2D, origin3D;
+    private Random r;
+    private static final int SEED = 47;
+    private static final int MAX_ITER = 100000;
+    private static final int MAX_DIM = 1000;
+    private static final int MAX_COORD = 100;
+    private static final double EPS = Math.pow(10, -8); // An epsilon value for some sqrt() comparisons.
 
-	@Before
+    @Before
+    public void setUp() {
+        origin2D = new KDPoint(0, 0);
+        origin3D = new KDPoint(0, 0, 0);
+        r = new Random(SEED); // Re-producible results via static seed.
+    }
 
-	public void setUp()  {
-		origin2D = new KDPoint();
-		origin3D = new KDPoint(3);
-		r = new Random(SEED); // Re-producible results via static seed.
-	}
+    @After
+    public void tearDown() {
+        origin2D = origin3D = null;
+        r = null;
+    }
 
-	@After
+    /**
+     * A rule to help us with tests that expect a certain Exception to be thrown.
+     */
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-	public void tearDown()  {
-		origin2D = origin3D = null;
-		r = null;
-	}
+    @Test
+    public void testKDPointArgFreeConstructor() {
+        assertEquals("A freshly created KDPoint should represent the 2D Cartesian origin (0, 0).",
+                ZERO, new KDPoint());
 
-	@Test
-	public void testKDPointInt() {
-		KDPoint hopefullyOrigin2D = new KDPoint(2),
-				hopefullyOrigin3D = new KDPoint(3);
-		assertEquals(hopefullyOrigin2D, origin2D);
-		assertEquals(hopefullyOrigin3D, origin3D);
+    }
 
-		// Is the appropriate exception properly thrown?
-		for(int i = 0; i < MAX_ITER; i++){
-			int currDim = -r.nextInt(1000); // Negative integers or zero.
-			RuntimeException re = null;
-			try {
-				new KDPoint(currDim);
-			} catch(RuntimeException rexc){
-				re = rexc;
-			} catch(Throwable t){
-				fail("Should've caught a RuntimeException when creating a KDPoint of dimensionality " +currDim + " . Instead we caught a "
-						+ t.getClass() + " with message: " + t.getMessage() + ".");
-			}
-			assertNotNull("Should've caught a RuntimeException when creating a KDPoint of dimensionality " +currDim + "." , re);
-		}
-	}
+    @Test
+    public void testKDPointArgConstructor() {
+        KDPoint point = new KDPoint(2, -9, 0, -34);
+        assertEquals("The length of KDPoint with 4 dimensions must be 4", 4, point.coords.length);
+        assertEquals("The first dimension's value should have been 2 for point (2, -9, 0, -34)", 2, point.coords[0]);
+        assertEquals("The second dimension's value should have been -9 for point (2, -9, 0, -34)", -9, point.coords[1]);
+        assertEquals("The third dimension's value should have been 0 for point (2, -9, 0, -34)", 0, point.coords[2]);
+        assertEquals("The fourth dimension's value should have been -34 for point (2, -9, 0, -34)", -34, point.coords[3]);
+    }
 
-	@Test
-	public void testKDPointDoubleArray() {
-		KDPoint point = new KDPoint(2.12, -9.23, 0.01, -34);
-		assertEquals("The length of KDPoint with 4 dimensions must be 4",4, point.coords.length);
-		assertEquals("The first dimension's value should have been 2.12 for point (2.12, -9.23, 0.01, -34)", new BigDecimal(2.12), point.coords[0]);
-		assertEquals("The second dimension's value should have been -9.23 for point (2.12, -9.23, 0.01, -34)",new BigDecimal(-9.23), point.coords[1]);
-		assertEquals("The third dimension's value should have been 0.01 for point (2.12, -9.23, 0.01, -34)",new BigDecimal(0.01), point.coords[2]);
-		assertEquals("The fourth dimension's value should have been -34 for point (2.12, -9.23, 0.01, -34)", new BigDecimal(-34), point.coords[3]);
-	}
+    @Test
+    public void testKDPointKDPoint() {
+        assertEquals("KDPoint created from copy constructor should have been equal to the original", new KDPoint(origin2D), origin2D);
+        assertEquals("KDPoint created from copy constructor should have been equal to the original", new KDPoint(origin3D), origin3D);
+        KDPoint fourDPoint = new KDPoint(-20, 6, 0, -9);
+        assertEquals("KDPoint created from copy constructor should have been equal to the original", new KDPoint(fourDPoint), fourDPoint);
 
-	@Test
-	public void testKDPointKDPoint() {
-		assertEquals("KDPoint created from copy constructor should have been equal to the original",new KDPoint(origin2D), origin2D);
-		assertEquals("KDPoint created from copy constructor should have been equal to the original",new KDPoint(origin3D), origin3D);
-		KDPoint fourDPoint = new KDPoint(-20.45, 6.78, 0.56, -9.76);
-		assertEquals("KDPoint created from copy constructor should have been equal to the original", new KDPoint(fourDPoint),fourDPoint);
+    }
 
-	}
+    @Test
+    public void testKDPointDistanceKDPoint() {
 
-	@Test
-	public void testKDPointDistanceKDPoint() {
+        // Trivial zero distances
+        String messageTrivialDistance = "The distance between a point and itself must be 0";
+        assertEquals(messageTrivialDistance, 0, origin2D.euclideanDistance(origin2D), 0);
+        assertEquals(messageTrivialDistance, 0, origin3D.euclideanDistance(origin3D), 0);
+        for (int i = 0; i < MAX_ITER; i++) {
+            KDPoint p = new KDPoint(-r.nextInt(MAX_COORD), r.nextInt(MAX_COORD));
+            assertEquals(messageTrivialDistance, 0, p.euclideanDistance(p), 0);
+        }
 
-		// Trivial zero distances
-		String messageTrivialDistance = "The distance between a point and itself must be 0";
-		assertEquals(messageTrivialDistance, BigDecimal.ZERO, origin2D.distanceSquared(origin2D));
-		assertEquals(messageTrivialDistance, BigDecimal.ZERO, origin3D.distanceSquared(origin3D));
-		for(int i = 0; i < MAX_ITER; i++){
-			KDPoint p = new KDPoint(- r.nextDouble(),  r.nextDouble());
-			assertEquals(messageTrivialDistance,BigDecimal.ZERO, p.distanceSquared(p));
+        // Let's also check if some exceptions are properly thrown.
+        thrown.expect(RuntimeException.class);
+        origin2D.euclideanDistance(origin3D);
 
-		}
+        thrown.expect(RuntimeException.class);
+        origin3D.euclideanDistance(origin2D);
 
-		// Let's also check if some exceptions are properly thrown.
-		RuntimeException re = null; // We will use this reference in the next few examples.
-		try {
-			origin2D.distanceSquared(origin3D);
-		} catch(RuntimeException rexc){
-			re = rexc;
-		} catch(Throwable t){
-			fail("Should've caught a RuntimeException when computing the distanceSquared between two KDPoints of different dimensionalities. Instead, " +
-					"we caught a " + t.getClass() + " with message: " + t.getMessage() + ".");
-		}
-		assertNotNull("Should've caught a RuntimeException when computing the distanceSquared between two KDPoints of different dimensionalities.", re);
+        thrown.expect(RuntimeException.class);
+        euclideanDistance(origin2D, origin3D);
 
-		try {
-			origin3D.distanceSquared(origin2D);
-		} catch(RuntimeException rexc){
-			re = rexc;
-		} catch(Throwable t){
-			fail("Should've caught a RuntimeException when computing the distanceSquared between two KDPoints of different dimensionalities. Instead, " +
-					"we caught a " + t.getClass() + " with message: " + t.getMessage() + ".");
-		}
-		assertNotNull("Should've caught a RuntimeException when computing the distanceSquared between two KDPoints of different dimensionalities.", re);
+        thrown.expect(RuntimeException.class);
+        euclideanDistance(origin3D, origin2D);
 
-		for(int i = 0; i < MAX_ITER; i++){
-			int currDim = r.nextInt(MAX_DIM);
-			re = null;
-			try {
-				new KDPoint(currDim).distanceSquared(new KDPoint(currDim + 1));
-			} catch(RuntimeException rexc){
-				re = rexc;
-			}
-			catch(Throwable t){
-				fail("Should've caught a RuntimeException when computing the distanceSquared between two KDPoints of dimensionalities + " +
-						currDim + " and " + currDim + 1 + ". Instead, " +
-						"we caught a " + t.getClass() + " with message: " + t.getMessage() + ".");
-			}
-			assertNotNull("Should've caught a RuntimeException when computing the distanceSquared between two KDPoints of dimensionalities + " +
-					currDim + " and " + currDim + 1 + ".", re);
-		}
+        // Simple stuff first, 1-D points!
+        KDPoint first = new KDPoint(3), second = new KDPoint(0);
+        assertEquals(messageTrivialDistance, 0, first.euclideanDistance(first), 0);
+        assertEquals(messageTrivialDistance, 0, second.euclideanDistance(second), 0);
+        assertEquals("The  Euclidean distance between two points is wrong", 3,
+                first.euclideanDistance(second), 0);
+        assertEquals("The  Euclidean distance between two points is wrong", 3,
+                second.euclideanDistance(first), 0);
+        KDPoint three = new KDPoint(-3);
+        assertEquals("The  Euclidean distance between two points is wrong", 3,
+                second.euclideanDistance(three), 0);
+        assertEquals("The  Euclidean distance between two points is wrong", 3,
+                three.euclideanDistance(second), 0);
 
-		// Simple stuff first, 1-D points!
-		KDPoint one = new KDPoint(3.0), two = new KDPoint(0.0);
-		assertEquals(messageTrivialDistance,BigDecimal.ZERO, one.distanceSquared(one));
-		assertEquals(messageTrivialDistance,BigDecimal.ZERO, two.distanceSquared(two));
-		assertEquals("The squared Euclidean distance between two points is wrong",new BigDecimal(9), one.distanceSquared(two));
-		assertEquals("The squared Euclidean distance between two points is wrong",new BigDecimal(9), two.distanceSquared(one));
-		KDPoint three = new KDPoint(-3.0);
-		assertEquals("The squared Euclidean distance between two points is wrong",new BigDecimal(9), two.distanceSquared(three));
-		assertEquals("The squared Euclidean distance between two points is wrong",new BigDecimal(9), three.distanceSquared(two));
+        // Classic.
+        KDPoint oneOne = new KDPoint(1, 1);
+        assertEquals("The  Euclidean distance between (1,1) and (0,0) should be root 2", Math.sqrt(2),
+                new KDPoint().euclideanDistance(oneOne), EPS);
+        KDPoint minusOneOne = new KDPoint(-1, 1);
+        assertEquals("The  Euclidean distance between (1,-1) and (0,0) should be root 2", Math.sqrt(2),
+                new KDPoint().euclideanDistance(minusOneOne), EPS);
+        KDPoint oneMinusOne = new KDPoint(1, -1);
+        assertEquals("The  Euclidean distance between (-1,1) and (0,0) should be root 2", Math.sqrt(2),
+                new KDPoint().euclideanDistance(oneMinusOne), EPS);
+        KDPoint minusOneminusOne = new KDPoint(-1, -1);
+        assertEquals("The  Euclidean distance between (-1,-1) and (0,0) should be root 2", Math.sqrt(2),
+                new KDPoint().euclideanDistance(minusOneminusOne), EPS);
 
-		// Classic.
-		KDPoint oneOne = new KDPoint(1, 1);
-		assertEquals("The squared Euclidean distance between (1,1) and (0,0) should be 2",new BigDecimal(2),
-				new KDPoint().distanceSquared(oneOne));
-		KDPoint minusOneOne = new KDPoint(-1, 1);
-		assertEquals("The squared Euclidean distance between (1,-1) and (0,0) should be 2", new BigDecimal(2),
-				new KDPoint().distanceSquared(minusOneOne));
-		KDPoint oneMinusOne = new KDPoint(1, -1);
-		assertEquals("The squared Euclidean distance between (-1,1) and (0,0) should be 2", new BigDecimal(2), new KDPoint().distanceSquared(oneMinusOne));
-		KDPoint minusOneminusOne = new KDPoint(-1, -1);
-		assertEquals("The squared Euclidean distance between (-1,-1) and (0,0) should be 2", new BigDecimal(2), new KDPoint().distanceSquared(minusOneminusOne));
+        // A not so trivial one
+        KDPoint complexPointOne = new KDPoint(3, 2, -1);
+        KDPoint complexPointTwo = new KDPoint(1, 3, 1);
+        assertEquals("The  Euclidean distance between two points is wrong", 3,
+                complexPointOne.euclideanDistance(complexPointTwo), 0);
+        assertEquals("The  Euclidean distance between two points is wrong", 3,
+                complexPointTwo.euclideanDistance(complexPointOne), 0);
 
-		// And a not so trivial one
-		KDPoint complexPointOne = new KDPoint(3.5, 2.1, -10.9);
-		KDPoint complexPointTwo = new KDPoint(-1.4, 2.8, -0.0007);
-		assertEquals("The squared Euclidean distance between two points is wrong", new BigDecimal(143.29474049), complexPointOne.distanceSquared(complexPointTwo)); // Computed with Google's calculator
-		assertEquals("The squared Euclidean distance between two points is wrong", new BigDecimal(143.29474049), complexPointTwo.distanceSquared(complexPointOne));
-	}
+        // The same one only with the points' coords negated
+        complexPointOne = new KDPoint(-3, -2, 1);
+        complexPointTwo = new KDPoint(-1, -3, -1);
+        assertEquals("The  Euclidean distance between two points is wrong", 3,
+                complexPointOne.euclideanDistance(complexPointTwo), 0);
+        assertEquals("The  Euclidean distance between two points is wrong", 3,
+                complexPointTwo.euclideanDistance(complexPointOne), 0);
+    }
 
-	@Test
-	public void testKDPointDistanceStatic() {
-		// Some trivial ones
-		String messageTrivialDistance = "Static distanceSquared(): The distance between a point and itself must be 0";
-		assertEquals(messageTrivialDistance, BigDecimal.ZERO, distanceSquared(origin2D, origin2D)); // Recall that the static method has been statically imported, so this works.
-		assertEquals(messageTrivialDistance, BigDecimal.ZERO, distanceSquared(origin3D, origin3D));
-		for(int i = 0; i < MAX_ITER; i++){
-			KDPoint p = new KDPoint(- r.nextDouble(), r.nextDouble());
-			assertEquals(messageTrivialDistance, BigDecimal.ZERO, distanceSquared(p, p));
-		}
+    @Test
+    public void testKDPointDistanceStatic() {
+        // Some trivial ones
+        String messageTrivialDistance = "Static euclidean distance(): The distance between a point and itself must be 0";
+        assertEquals(messageTrivialDistance, 0, euclideanDistance(origin2D, origin2D), 0); // Recall that the static method has been statically imported, so this works.
+        assertEquals(messageTrivialDistance, 0, euclideanDistance(origin3D, origin3D), 0);
+        for (int i = 0; i < MAX_ITER; i++) {
+            KDPoint p = new KDPoint(-r.nextInt(MAX_COORD), r.nextInt(MAX_COORD));
+            assertEquals(messageTrivialDistance, 0, euclideanDistance(p, p), 0);
+        }
 
+        // The complex example from the previous test:
+        KDPoint complexPointOne = new KDPoint(3, 2, -1);
+        KDPoint complexPointTwo = new KDPoint(1, 3, 1);
+        assertEquals("The  Euclidean distance (static euclidean distance()) between two points is wrong",
+                3, euclideanDistance(complexPointOne, complexPointTwo), 0);
+        assertEquals("The  Euclidean distance (static euclidean distance()) between two points is wrong",
+                3, euclideanDistance(complexPointTwo, complexPointOne), 0);
 
+        // And, finally, proper exceptions thrown when comparing objects of different
+        // dimensionalities:
+        for (int i = 0; i < MAX_ITER; i++) {
+            int coord = r.nextInt(MAX_COORD);
+			thrown.expect(RuntimeException.class);
+            euclideanDistance(new KDPoint(coord), new KDPoint(coord, coord));
+        }
+    }
 
-		// The complex example from the previous test:
-		KDPoint complexPointOne = new KDPoint(3.5, 2.1, -10.9);
-		KDPoint complexPointTwo = new KDPoint(-1.4, 2.8, -0.0007);
-		assertEquals("The squared Euclidean distance (static distanceSquared()) between two points is wrong", new BigDecimal(143.29474049), distanceSquared(complexPointOne, complexPointTwo));
-		assertEquals("The squared Euclidean distance (static distanceSquared()) between two points is wrong", new BigDecimal(143.29474049), distanceSquared(complexPointTwo, complexPointOne));
+    @Test
+    public void testKDPointToString() {
 
-		// And, finally, proper exceptions thrown when comparing objects of different
-		// dimensionalities:
-		for(int i = 0; i < MAX_ITER; i++){
-			int currDim = r.nextInt(MAX_DIM);
-			RuntimeException re = null;
-			try {
-				distanceSquared(new KDPoint(currDim), new KDPoint(currDim + 1));
-			} catch(RuntimeException rexc){
-				re = rexc;
-			}
-			catch(Throwable t){
-				fail("Should've caught a RuntimeException when computing the distanceSquared between two KDPoints of dimensionalities + " +
-						currDim + " and " + currDim + 1 + ". Instead, " +
-						"we caught a " + t.getClass() + " with message: " + t.getMessage() + ".");
-			}
-			assertNotNull("Should've caught a RuntimeException when computing the distanceSquared between two KDPoints of dimensionalities + " +
-					currDim + " and " + currDim + 1 + ".", re);
-		}
-	}
-
-	@Test
-	public void testKDPointToString(){
-
-		// (1) 1D KDPoints
-		for(int i = 0; i < MAX_ITER; i++){
-			BigDecimal randNum = new BigDecimal(r.nextDouble());
-			KDPoint p = new KDPoint(randNum);
-			assertEquals("We failed to generate a proper String-ified representation for "
-							+ "the 1D point  #" + i, "A KDPoint with coordinates: ("+(randNum)+")",
-					p.toString());
-			p = new KDPoint(randNum.negate());
-			assertEquals("We failed to generate a proper String-ified representation for "
-							+ "the 1D point  #" + i, "A KDPoint with coordinates: ("+ (randNum.negate())+")",
-					p.toString());
-		}
+        // (1) 1D KDPoints
+        for (int i = 0; i < MAX_ITER; i++) {
+            int randCoord = r.nextInt(MAX_COORD);
+            KDPoint p = new KDPoint(randCoord);
+            assertEquals("We failed to generate a proper String-ified representation for "
+                            + "the 1D point  #" + i, "(" + randCoord + ")",  p.toString());
+            p = new KDPoint(-randCoord);
+            assertEquals("We failed to generate a proper String-ified representation for "
+                            + "the 1D point  #" + i, "(" + (-randCoord) + ")",  p.toString());
+        }
 
 
-		// (2) 2D KDPoints
-		for(int i = 0; i < MAX_ITER; i++){
-			BigDecimal[] randNums = {new BigDecimal(r.nextDouble()), new BigDecimal(r.nextDouble())};
-			KDPoint p = new KDPoint(randNums);
-			assertEquals("We failed to generate a proper String-ified representation for "
-					+ "the 1D point  #" + i, "A KDPoint with coordinates: ("+randNums[0]+", "
-					+ randNums[1] + ")",p.toString());
-			BigDecimal[] minusRandNums = {randNums[0].negate(), randNums[1].negate()};
-			p = new KDPoint(minusRandNums);
-			assertEquals("We failed to generate a proper String-ified representation for "
-					+ "the 1D point  #" + i, "A KDPoint with coordinates: ("+minusRandNums[0]+", "
-					+ minusRandNums[1] + ")",p.toString());
-		}
+        // (2) 2D KDPoints
+        for (int i = 0; i < MAX_ITER; i++) {
+            int[] randNums = {r.nextInt(MAX_COORD), r.nextInt(MAX_COORD)};
+            KDPoint p = new KDPoint(randNums);
+            assertEquals("We failed to generate a proper String-ified representation for "
+                    + "the 1D point  #" + i, "(" + randNums[0] + ", "
+                    + randNums[1] + ")", p.toString());
+            int[] minusRandNums = {-randNums[0], -randNums[1]};
+            p = new KDPoint(minusRandNums);
+            assertEquals("We failed to generate a proper String-ified representation for "
+                    + "the 1D point  #" + i, "(" + minusRandNums[0] + ", "
+                    + minusRandNums[1] + ")", p.toString());
+        }
 
-		// Could add tests for more dimensions, but it's not like we will be using toString()
-		// for anything other than debugging information...
-	}
-
+        // Could add tests for more dimensions, but it's not like we will be using toString()
+        // for anything other than debugging information...
+    }
 
 
 }

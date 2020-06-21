@@ -1,10 +1,11 @@
 package spatial.trees;
+
 import spatial.kdpoint.KDPoint;
-import spatial.knnutils.*;
+import spatial.knnutils.BoundedPriorityQueue;
+import spatial.knnutils.NNData;
 import spatial.nodes.KDTreeNode;
 
 import java.util.ArrayList;
-import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.LinkedList;
 
@@ -23,7 +24,7 @@ import java.util.LinkedList;
  * <p><b>YOU SHOULD ***NOT*** EDIT THIS CLASS!</b> If you do, you risk <b>not passing our tests!</b> The
  * entire functionality will be implemented in {@link KDTreeNode}.</p>
  *
- * @author  <a href ="https://github.com/JasonFil">Jason Filippou</a>
+ * @author  <a href ="https://github.com/jasonfilippou">Jason Filippou</a>
  *
  * @see SpatialDictionary
  * @see SpatialQuerySolver
@@ -45,7 +46,7 @@ public class KDTree implements SpatialDictionary, SpatialQuerySolver {
 	 * Encoding infinity with a negative number is safer than {@link Double#MAX_VALUE} for our purposes,
 	 * and allows for faster comparisons as well. An application may use it as given.
 	 */
-	public static final BigDecimal INFTY = new BigDecimal(-1);
+	public static final double INFTY = -1.0;
 
 	/* ************************************************************************** */
 	/* ************************* PRIVATE FIELDS ********************************* */
@@ -126,7 +127,7 @@ public class KDTree implements SpatialDictionary, SpatialQuerySolver {
 
 
 	@Override
-	public Collection<KDPoint> range(KDPoint p, BigDecimal range){
+	public Collection<KDPoint> range(KDPoint p, double range){
 		LinkedList<KDPoint> pts = new LinkedList<>();
 		if(root == null)
 			return pts; // empty
@@ -137,17 +138,17 @@ public class KDTree implements SpatialDictionary, SpatialQuerySolver {
 
 	@Override
 	public KDPoint nearestNeighbor(KDPoint p){
-		NNData<KDPoint> n = new NNData<KDPoint>(null, INFTY);
+		NNData<KDPoint> n = new NNData<>(null, INFTY);
 		if(root != null)
 			n = root.nearestNeighbor(p, 0, n, dims);
-		return n.bestGuess;
+		return n.getBestGuess();
 	}
 
 	@Override
 	public BoundedPriorityQueue<KDPoint> kNearestNeighbors(int k, KDPoint p){
 		if(k <= 0)
 			throw new RuntimeException("The value of k provided, " + k + ", is invalid: Please provide a positive integer.");
-		BoundedPriorityQueue<KDPoint> queue = new BoundedPriorityQueue<KDPoint>(k);
+		BoundedPriorityQueue<KDPoint> queue = new BoundedPriorityQueue<>(k);
 		if(root != null)
 			root.kNearestNeighbors(k, p, queue, 0, dims);
 		return queue; // Might be empty; that's not a problem.
@@ -178,20 +179,21 @@ public class KDTree implements SpatialDictionary, SpatialQuerySolver {
 	}
 
 	/**
-	 * A simple tree description generator for VizTree/CompactVizTree. It returns a string representation for the QuadTree
-	 * This tree representation follows jimblackler style(http://jimblackler.net/treefun/index.html)
-	 * To identify child-index (left/right or NW,NE,SW,SE), I use "*" as special character to indicate null leafs
+	 * A simple tree description generator for VizTree/CompactVizTree. It returns a string representation for the KD-Tree.
+	 * This tree representation follows jimblackler style(http://jimblackler.net/treefun/index.html).
+	 * To identify child-index (left/right or NW,NE,SW,SE), I use "*" as special character to indicate null leaves.
+	 * DO NOT EDIT!
 	 * @param verbose whether to print the tree description to stdout or not
-	 * @return a string representation for the QuadTree.
+	 * @return An {@link ArrayList} that gives a string-fied representation of the KD-Tree.
 	 */
 	public ArrayList<String> treeDescription(boolean verbose)
 	{
-		ArrayList<String> tree = new ArrayList<String>();
+		ArrayList<String> tree = new ArrayList<>();
 		treeDescription(root,"",tree,verbose);
 		return tree;
 	}
 	/**
-	 * Private <b>recursive</b> help for treeDescription
+	 * Private <b>recursive</b> help for treeDescription. DO NOT EDIT!
 	 * @param root the current subtree root
 	 * @param space tracks parent-child relationship
 	 * @param tree Arraylist containing the tree description
@@ -206,9 +208,9 @@ public class KDTree implements SpatialDictionary, SpatialQuerySolver {
 			return;
 		}
 		if (verbose)
-			System.out.println(space+root.getPoint().compactToString());
+			System.out.println(space+root.getPoint().toString());
 
-		tree.add(space+root.getPoint().compactToString());
+		tree.add(space+root.getPoint().toString());
 		treeDescription(root.getLeft(), space+" ",tree,verbose);
 		treeDescription(root.getRight(), space+" ",tree,verbose);
 	}

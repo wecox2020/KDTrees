@@ -1,7 +1,5 @@
 package spatial.knnutils;
 
-import java.math.BigDecimal;
-
 /**
  * <p>A PriorityQueueNode is a {@link Comparable} type which is used to wrap around
  * the (data, priority) pairs in a {@link PriorityQueue}. Its overriding of the
@@ -10,7 +8,7 @@ import java.math.BigDecimal;
  *
  * <p><b>YOU SHOULD ***NOT*** EDIT THIS CLASS!</b> If you do, you risk <b>not passing our tests!</b></p>
  *
- * @author <a href="https://github.com/JasonFil/">Jason Filippou</a>
+ * @author <a href="https://github.com/jasonfilippou/">Jason Filippou</a>
  *
  * @param <T> The type of element contained in the PriorityQueueNode.
  *
@@ -20,21 +18,19 @@ import java.math.BigDecimal;
 public class PriorityQueueNode<T> implements Comparable<PriorityQueueNode<T>>{
 
 	private T data;
-	private BigDecimal priority;
+	private double priority;
 	private int orderInserted;
 
 	/**
 	 * 3-arg constructor.
 	 * @param data The element of type T held by the container.
-	 * @param priority The element's priority, as provided by the caller. <b>&quot;Smaller&quot;priorities are considered &quot;higher.</b> The accuracy of
-	 *                 priorities is {@link BigDecimal}, a data type that represents arbitrary precision floating point numbers.
+	 * @param priority The element's priority, as provided by the caller. <b>&quot;Smaller&quot;priorities are considered &quot;higher.</b>*
 	 * @param insertionOrder The order that the element was inserted in, as provided by the caller. This parameter is important
 	 *                       because, in a {@link PriorityQueue}, tie-breakers between elements with the same priority are
 	 *                       determined by their insertion order in the {@link PriorityQueue}. <b>It is the caller's responsibility
 	 *                       to ensure that this parameter is passed correctly.</b>
-	 * @see BigDecimal
 	 */
-	public PriorityQueueNode(T data, BigDecimal priority, int insertionOrder){
+	public PriorityQueueNode(T data, double priority, int insertionOrder){
 		this.data = data;
 		this.priority = priority;
 		orderInserted = insertionOrder;
@@ -45,7 +41,7 @@ public class PriorityQueueNode<T> implements Comparable<PriorityQueueNode<T>>{
 	 * @param data The element of type T held by the container.
 	 */
 	public PriorityQueueNode(T data){
-		this(data, new BigDecimal(-1), 0);
+		this(data, -1, 0);
 	}
 
 	/**
@@ -62,11 +58,11 @@ public class PriorityQueueNode<T> implements Comparable<PriorityQueueNode<T>>{
 		// queue terms. Also recall that we are using a 
 		// MinHeap, so the smallest elements ascend to the top,
 		// not the largest.
-		if(priority.compareTo(o.priority) < 0)
+		if(priority < o.priority)
 			return -1;
-		else if(priority.compareTo(o.priority) > 0)
+		else if(priority > o.priority)
 			return 1;
-		else {
+		else {	// Break ties in FIFO order
 			if(orderInserted < o.orderInserted)
 				return -1;
 			else // Covers equality but it's not like we'll ever have equality of two elements.
@@ -84,9 +80,9 @@ public class PriorityQueueNode<T> implements Comparable<PriorityQueueNode<T>>{
 
 	/**
 	 * Simple getter for element's priority.
-	 * @return The contained element's priority. <b>&quot;Smaller&quot; {@link BigDecimal} instances have higher priorities</b>.
+	 * @return The contained element's priority. Smaller {@code double}s represent higher priorities.
 	 */
-	public BigDecimal getPriority(){
+	public double getPriority(){
 		return priority;
 	}
 

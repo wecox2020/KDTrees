@@ -5,13 +5,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import spatial.kdpoint.InvalidDimensionalityException;
 import spatial.kdpoint.KDPoint;
 import spatial.knnutils.BoundedPriorityQueue;
 import spatial.trees.KDTree;
 import spatial.trees.PRQuadTree;
 import visualization.CompactVizTree;
 
-import java.math.BigDecimal;
 import java.util.*;
 
 import static org.junit.Assert.*;
@@ -23,6 +23,10 @@ import static spatial.kdpoint.KDPoint.*;
  *
  * @author  --- YOUR NAME HERE! ---
  *
+ * @see KDTree
+ * @see PRQuadTree
+ * @see spatial.trees.SpatialDictionary
+ * @see spatial.trees.SpatialQuerySolver
  */
 
 public class StudentTests {
@@ -39,46 +43,27 @@ public class StudentTests {
     private static final long SEED=47;
     private Random r;
     private static final int MAX_ITER = 200;
-
-
+    private static final int BOUND=100; // An upper bound for your sampled int coordinates.
     private int getRandomSign(){
         return 2 * r.nextInt(2) - 1;
     }
 
-    private double[] getRandomDoubleCoords(int dim){
-        double[] coords = new double[dim];
-        int SCALE = 10;
+    private int[] getRandomIntCoords(int dim){
+        int[] coords = new int[dim];
         for(int i = 0; i < dim; i++)
-            coords[i] = getRandomSign() * SCALE * r.nextDouble();
+            coords[i] = getRandomSign() * r.nextInt(BOUND);
         return coords;
     }
 
     private KDPoint getRandomPoint(int dim){
-        return new KDPoint(getRandomDoubleCoords(dim)); // This will trigger KDPoint(double[]...) constructor
+        return new KDPoint(getRandomIntCoords(dim)); // This will trigger KDPoint(double[]...) constructor
     }
 
-    private KDPoint getRandomIntegerCoordPoint(int dim){
-        return new KDPoint(getRandomIntegerCoords(dim));    // Will trigger KDPoint(BigDecimal[] ...) constructor
-    }
-
-
-    private BigDecimal[] getRandomIntegerCoords(int dim){
-        BigDecimal[] coords = new BigDecimal[dim];
-        for(int i = 0; i < coords.length; i++)
-            coords[i] = new BigDecimal(r.nextInt(1000)); // Or 10,000, 100,000, whatever you want. Make it a constant if you must.
-        return coords; // So this will be an Array of ostensibly BigDecimals, only the actual numbers are ints, drawn from U[0,999]
-    }
-
-    private boolean checkRangeQuery(KDTree tree, KDPoint origin, BigDecimal range, KDPoint... candidates){
+    private boolean checkRangeQuery(KDTree tree, KDPoint origin, double range, KDPoint... candidates){
         Collection<KDPoint> rangeQueryResults = tree.range(origin, range);
         List<KDPoint> candidateList = Arrays.asList(candidates);
         return rangeQueryResults.containsAll(candidateList); // Order not important in range queries: only containment.
     }
-
-    private BigDecimal rootOfBigDecimal(BigDecimal bd){
-        return BigDecimal.valueOf(Math.sqrt(bd.doubleValue()));
-    }
-
 
     /* Setup and teardown methods; those are run before and after every jUnit test. */
 
@@ -86,7 +71,7 @@ public class StudentTests {
     @Before
     public void setUp(){
         r = new Random(SEED);
-        prQuadTree = new PRQuadTree(r.nextInt(), r.nextInt());
+        prQuadTree = new PRQuadTree(r.nextInt(BOUND), r.nextInt(BOUND));
     }
 
     @After
@@ -97,6 +82,11 @@ public class StudentTests {
         System.gc();
     }
 
+    /**
+     *  A rule to help us with tests that expect a certain Exception to be thrown.
+     */
+    @Rule
+    public ExpectedException thrown= ExpectedException.none();
 
     /* ******************************************************************************************************** */
     /* ******************************************************************************************************** */
@@ -104,11 +94,22 @@ public class StudentTests {
     /* ******************************************************************************************************** */
     /* ******************************************************************************************************** */
 
+    @Test
+    public void testBPQZeroCapacityProvided(){
+        thrown.expect(IllegalArgumentException.class);
+        new BoundedPriorityQueue<>(0);
+    }
+
+    @Test
+    public void testBPQNegativeCapacityProvided(){
+        thrown.expect(IllegalArgumentException.class);
+        new BoundedPriorityQueue<>(-1);
+    }
 
     @Test
     public void testBPQBasicEnqueueDequeueFirstAndLast(){
         BoundedPriorityQueue<KDPoint> myQueue = new BoundedPriorityQueue<>(1);
-        myQueue.enqueue(ZERO, new BigDecimal(2.3));
+        myQueue.enqueue(ZERO, 2.3);
         assertEquals("After enqueueing a single KDPoint in a BPQ instance with a capacity of 1, a call to first() did not return " +
                 "the point itself.", ZERO, myQueue.first());
         assertEquals("After enqueueing a single KDPoint in a BPQ instance with a capacity of 1, a call to last() did not return " +
@@ -120,15 +121,15 @@ public class StudentTests {
     @Test
     public void testBPQComplexEnqueueDequeueFirstAndLast() {
         BoundedPriorityQueue<KDPoint> myQueue = new BoundedPriorityQueue<>(3);
-        myQueue.enqueue(ZERO, new BigDecimal(2.3));
-        myQueue.enqueue(ONEONE, new BigDecimal(1.1));
+        myQueue.enqueue(ZERO, 2.3);
+        myQueue.enqueue(ONEONE, 1.1);
         assertEquals("After enqueueing two KDPoints in a BPQ instance with a capacity of 3, a call to first() did not return " +
                 "the expected point.", ONEONE, myQueue.first());
         assertEquals("After enqueueing two KDPoints in a BPQ instance with a capacity of 3, a call to last() did not return " +
                 "the expected point.", ZERO, myQueue.last());
         assertEquals("After enqueueing two KDPoints in a BPQ instance with a capacity of 3, a call to dequeu() did not return " +
                 "the expected point.", ONEONE, myQueue.dequeue());
-        myQueue.enqueue(MINUSONEMINUSONE, new BigDecimal(4));
+        myQueue.enqueue(MINUSONEMINUSONE, 4);
         assertEquals("After enqueueing two KDPoints in a BPQ instance with a capacity of 3, dequeuing one and enqueuing another, " +
                 "a call to last() did not return the expected point.", MINUSONEMINUSONE, myQueue.last());
 
@@ -137,16 +138,16 @@ public class StudentTests {
     @Test
     public void testBPQEnqueuePastCapacity(){
         BoundedPriorityQueue<KDPoint> myQueue = new BoundedPriorityQueue<>(5);
-        myQueue.enqueue(ZERO, BigDecimal.ONE);
-        myQueue.enqueue(ONEONE, new BigDecimal(2));
-        myQueue.enqueue(ONEMINUSONE, new BigDecimal(3));
-        myQueue.enqueue(MINUSONEONE, new BigDecimal(4));
-        myQueue.enqueue(ZEROMINUSONE, new BigDecimal(5));
-        myQueue.enqueue(ONEZERO, new BigDecimal(5));   // FIFO should keep this one away
+        myQueue.enqueue(ZERO, 1);
+        myQueue.enqueue(ONEONE, 2);
+        myQueue.enqueue(ONEMINUSONE, 3);
+        myQueue.enqueue(MINUSONEONE, 4);
+        myQueue.enqueue(ZEROMINUSONE,5);
+        myQueue.enqueue(ONEZERO, 5);   // FIFO should keep this one away
         assertEquals("After enqueuing six elements in a BPQ with initial capacity 5, a call to last() did not return " +
                 "the expected element.", ZEROMINUSONE, myQueue.last());
-        myQueue.enqueue(ONEZERO, new BigDecimal(0.5));   // The BPQ's sorting should put this first.
-        myQueue.enqueue(ZEROONE, new BigDecimal(1.5));  // And this third.
+        myQueue.enqueue(ONEZERO, 0.5);   // The BPQ's sorting should put this first.
+        myQueue.enqueue(ZEROONE, 1.5);  // And this third.
         assertEquals("After enqueuing eight elements in a BPQ with initial capacity 5, we would expect its size to still be" +
                 "5.", 5, myQueue.size());
         assertEquals("After enqueuing eight elements in a BPQ with initial capacity 5, a call to dequeue() did not return " +
@@ -182,16 +183,16 @@ public class StudentTests {
     }
 
     @Test
-    public void testKDTreeSimpleRange(){
+    public void testKDTreeSimpleRange() throws InvalidDimensionalityException {
         int MAX_DIM = 10;
         for(int dim = 1; dim <= MAX_DIM; dim++){ // For MAX_DIM-many trees...
+            KDTree tree = new KDTree(dim);
             for(int i = 0; i < MAX_ITER; i++){ // For MAX_ITER-many points...
-                KDPoint originInDim = new KDPoint(dim);
-                KDTree tree = new KDTree(dim);
+                KDPoint originInDim = KDPoint.getOriginInDim(dim);
                 KDPoint p = getRandomPoint(dim);
                 tree.insert(p);
                 assertTrue("Failed a range query for a " + dim + "-D tree which only contained " +
-                        p + ", KDPoint #" + i + ".", checkRangeQuery(tree, originInDim, rootOfBigDecimal(p.distanceSquared(originInDim))));
+                        p + ", KDPoint #" + i + ".", checkRangeQuery(tree, originInDim, p.euclideanDistance(originInDim)));
             }
         }
     }
@@ -260,10 +261,10 @@ public class StudentTests {
         KDPoint queryPt = new KDPoint(-1,4);
 
 
-        BoundedPriorityQueue<KDPoint> expectedKnnPoints = new BoundedPriorityQueue<KDPoint>(kNN+1);
-        expectedKnnPoints.enqueue(new KDPoint(-1.0, 2.0),new BigDecimal(2));
-        expectedKnnPoints.enqueue(new KDPoint(-2.0, 2.0),new BigDecimal(2.236068));
-        expectedKnnPoints.enqueue(new KDPoint(-2.0, 6.0),new BigDecimal(2.236068));
+        BoundedPriorityQueue<KDPoint> expectedKnnPoints = new BoundedPriorityQueue<>(kNN+1);
+        expectedKnnPoints.enqueue(new KDPoint(-1, 2),2);
+        expectedKnnPoints.enqueue(new KDPoint(-2, 2), 2.236068);
+        expectedKnnPoints.enqueue(new KDPoint(-2, 6),2.236068 );
 //        expectedKnnPoints.enqueue(new KDPoint(-2.0, 7.0),2.236068);
 
 
@@ -292,40 +293,41 @@ public class StudentTests {
         assertNull("nearestNeighbor check; Expected null but actual value is not null. Make sure the code does not include query point in the result",nn);
 
 
-        nn = prQuadTree.nearestNeighbor(new KDPoint(points[0].coords[0],points[0].coords[1].add(new BigDecimal(0.1))));
-        assertEquals("nearestNeighbor check; Expected "+points[0].compactToString()+" but actual "+nn.compactToString(),nn,points[0]);
+        nn = prQuadTree.nearestNeighbor(new KDPoint(points[0].coords[0],points[0].coords[1] + 1));
+        assertEquals("nearestNeighbor check failed. ",nn,points[0]);
     }
 
     @Test
-    public void testRangePRQuadTree() {
+    public void testPRQRange() {
         prQuadTree = new PRQuadTree(4, 2); // Space from (-8, -8) to (8, 8), bucketing parameter = 2.
-        KDPoint[] points = {new KDPoint(1, 1)
-        };
-
-        prQuadTree.insert(points[0]);
-        double range = 5;
-        ArrayList<KDPoint> ptsWithinRange;
-
-        ptsWithinRange = new ArrayList<>(prQuadTree.range(points[0],new BigDecimal(range)));
-        assertEquals("Query a Quadtree using the single element, the tree contains, should return 0 elements",
+        KDPoint point = ONEONE;
+        prQuadTree.insert(point);
+        ArrayList<KDPoint> ptsWithinRange = new ArrayList<>(prQuadTree.range(ZERO,0.5));
+        assertEquals("PR-QuadTree contains (1, 1) and a range query from (0, 0) with a range of 0.5 " +
+                        "should not be sufficient to include (1, 1)",
                 0,ptsWithinRange.size());
+        ptsWithinRange = new ArrayList<>(prQuadTree.range(ZERO, euclideanDistance(ZERO, point)));
+        assertTrue("PR-QuadTree contains (1, 1) and a range query from (0, 0) with a range of sqrt(2) + EPS " +
+                        "should be sufficient to include (1, 1)",
+                ptsWithinRange.size() == 1 && ptsWithinRange.get(0).equals(point));
 
-        ptsWithinRange = new ArrayList<>(prQuadTree.range(
-                new KDPoint(points[0].coords[0],points[0].coords[1].add(new BigDecimal(0.1))),new BigDecimal(range)));
-        assertEquals(1,ptsWithinRange.size());
-
-        assertEquals("nearestNeighbor check; Expected "+points[0].compactToString()+" but actual "+ptsWithinRange.get(0).compactToString(),
-                ptsWithinRange.get(0),points[0]);
+        // Inserting (0, 0) should *not* change anything, because we never report the anchor point.
+        prQuadTree.insert(point);
+        ptsWithinRange = new ArrayList<>(prQuadTree.range(ZERO, euclideanDistance(ZERO, point)));
+        assertTrue("PR-QuadTree contains (1, 1) and (0, 0). A range query from (0, 0) with a range " +
+                        "of sqrt(2) + EPS should be sufficient to include (1, 1) but *not* report (0, 0).",
+                ptsWithinRange.size() == 1 && ptsWithinRange.get(0).equals(point));
     }
 
 
-        @Test
+    /**
+     * This &quot;test&quot; just gives an example for how to generate a KD-tree visualization using {@link CompactVizTree}.
+     * If successful, an image named <tt>compact_kdtree.png</tt> should be saved inside your project directory
+     * Please make sure to delete these image files before submission. We give it to you as a {@code jUnit} test
+     * in order for it to run automatically whenever you run the full suite.
+     */
+    @Test
     public void testKDTreeViz(){
-        /**
-         * This test just gives an example for how to generate a KD-tree visualization using compactVizTree.
-         * If successful, an image named compact_kdtree.png should be saved inside your project directory
-         * Please make sure to delete these image files before submission
-         */
         kdTree = new KDTree(2);
         KDPoint[] points = {new KDPoint(10, 30),
                 new KDPoint(12, 18),
@@ -344,13 +346,14 @@ public class StudentTests {
 
     }
 
+    /**
+     * This "test" just gives an example for how to generate a Quadtree visualization using {@link CompactVizTree}.
+     * If successful, an image named {@code compact_quadtree.png} should be created.
+     * Please make sure to delete these image files before submission. We give it to you as a {@code jUnit} test
+     * in order for it to run automatically whenever you run the full suite.
+     */
     @Test
     public void testPRTreeViz(){
-        /**
-         * This test just gives an example for how to generate a Quadtree visualization using compactVizTree
-         * If successful, an image named compact_quadtree.png should be created
-         * Please make sure to delete these image files before submission
-         */
         prQuadTree = new PRQuadTree(4, 2); // Space from (-8, -8) to (8, 8), bucketing parameter = 2.
 
         KDPoint[] points = {new KDPoint(1, 1),

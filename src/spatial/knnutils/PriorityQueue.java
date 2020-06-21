@@ -2,8 +2,6 @@ package spatial.knnutils;
 
 import spatial.kdpoint.KDPoint;
 
-import java.math.BigDecimal;
-
 /**
  * <p>{@link PriorityQueue} is an interface specification for <i>Priority Queues</i>. Those are queues which, instead
  * of operating in a FIFO manner, will insert elements according to a provided priority, which is <b>not necessarily an integer</b>
@@ -14,7 +12,7 @@ import java.math.BigDecimal;
  *
  *<p><b>YOU SHOULD ***NOT*** EDIT THIS CLASS!</b> If you do, you risk <b>not passing our tests!</b></p>
  *
- * @author <a href="https://github.com/JasonFil/">Jason Filippou</a>
+ * @author <a href="https://github.com/jasonfilippou/">Jason Filippou</a>
  *
  * @see PriorityQueueNode
  * @see BoundedPriorityQueue
@@ -28,16 +26,16 @@ public interface PriorityQueue<T> extends Iterable<T>{
 	 * Euclidean Distances in KNN queries. </p>
 	 *
 	 * @param element The element to insert in the queue.
-	 * @param priority The priority of the element. Encoded as an arbitrary precision {@link BigDecimal}.
+	 * @param priority The priority of the element.
 	 *
-	 * @see projects.spatial.kdpoint.KDPoint#distanceSquared(KDPoint)
-	 * @see BigDecimal
+	 * @see spatial.kdpoint.KDPoint#euclideanDistance(KDPoint)
+	 * @throws InvalidPriorityException if {@code priority} &lt; 0.
 	 */
-	void enqueue(T element, BigDecimal priority);
+	void enqueue(T element, double priority) throws InvalidPriorityException;
 	
 	/**
 	 * Return the <b>minimum priority element</b> in the queue, <b>simultaneously removing it</b> from the structure.
-	 * @return The minimum priority element in the queue, or null if the queue is empty.
+	 * @return The minimum priority element in the queue, or {@code null} if the queue is empty.
 	 */
 	T dequeue();
 	

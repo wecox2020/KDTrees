@@ -6,14 +6,14 @@ import java.io.Serializable;
 import java.util.Comparator;
 
 /**<p>KNNComparator is a {@link Serializable} {@link Comparator} used for sorting {@link KDPoint}s
- * based on the {@link KDPoint#distanceSquared(KDPoint, KDPoint) distanceSquared} to an anchor {@link KDPoint}. It is very
+ * based on the {@link KDPoint#euclideanDistance(KDPoint, KDPoint) distanceSquared} to an anchor {@link KDPoint}. It is very
  * useful for <b>testing</b> KNN queries.</p>
  * 
  * <p><b>Note: this comparator imposes orderings that are inconsistent with {@link KDPoint#equals(Object)}.</b></p>
  *
  * <p><b>YOU SHOULD ***NOT*** EDIT THIS CLASS!</b> If you do, you risk <b>not passing our tests!</b></p>
  *
- * @author <a href ="https://github.com/JasonFil/">Jason Filippou</a>
+ * @author <a href ="https://github.com/jasonfilippou/">Jason Filippou</a>
  * @param <T> A {@link KDPoint} type.
  * @see NNData
  */
@@ -39,13 +39,12 @@ public class KNNComparator<T extends KDPoint> implements Comparator<T>, Serializ
 
 	@Override
 	public int compare(T o1, T o2) {
-		byte comparison = (byte) o1.distanceSquared(anchor).compareTo(o2.distanceSquared(anchor));
+		double comparison = o1.euclideanDistance(anchor) - o2.euclideanDistance(anchor);
 		if(comparison < 0) // o1 closer
 			return -1;
 		else if(comparison == 0) // same distance
 			return 0;
 		else // o2 closer
 			return 1;
-
 	}
 }

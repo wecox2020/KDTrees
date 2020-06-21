@@ -11,7 +11,7 @@ import spatial.knnutils.BoundedPriorityQueue;
  *
  * <p><b>YOU SHOULD ***NOT*** EDIT THIS INTERFACE!</b> If you do, you risk <b>not passing our tests!</b></p>
  *
- * @author <a href="https://github.com/JasonFil">Jason Filippou</a>
+ * @author <a href="https://github.com/jasonfilippou">Jason Filippou</a>
  *
  * @see KDPoint
  * @see BoundedPriorityQueue

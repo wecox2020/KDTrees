@@ -1,8 +1,5 @@
 package spatial.kdpoint;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
-
 /** <p>{@link KDPoint} is a class that represents a k-dimensional point in Euclidean
  * space, where <em>k</em> is a positive integer. It provides methods for initialization,
  * copy construction, equality checks and distance calculations. The precision of {@link KDPoint}s
@@ -10,7 +7,7 @@ import java.util.Arrays;
  * 
  * <p><b>YOU SHOULD ***NOT*** EDIT THIS CLASS!</b> If you do, you risk <b>not passing our tests!</b></p>
  *
- * @author <a href="https://github.com/JasonFil">Jason Filippou</a>
+ * @author <a href="https://github.com/jasonfilippou">Jason Filippou</a>
  */
 public class KDPoint {
 	
@@ -18,7 +15,7 @@ public class KDPoint {
 	 * coordinates to be publicly accessible. This makes {@link KDPoint}s <b>mutable</b>,
 	 * so deep copies will be required wherever we copy {@link KDPoint}s.
 	 */
-	public BigDecimal[] coords;
+	public int[] coords;
 
 	/**
 	 * The point {@code (0, 0)}
@@ -65,49 +62,36 @@ public class KDPoint {
 	 */
 	public static final KDPoint  MINUSONEONE = new KDPoint(-1, 1);
 
-	
+	/**
+	 * A static method that returns a {@link KDPoint} instance that describes the cartesian origin
+	 * corresponding to the dimensionality of the space provided.
+	 *
+	 * @param dim  The dimensionality of the space.
+	 *
+	 * @throws InvalidDimensionalityException if dim <= 0.
+	 */
+	public static KDPoint getOriginInDim(int dim) throws InvalidDimensionalityException {
+		if(dim <= 0)
+			throw new InvalidDimensionalityException("Invalid dimensionality provided: " + dim + ".");
+		else
+			return new KDPoint(new int[dim]);	// The parameter array is flushed to zeroes by the compiler.
+	}
 	
 	/**
 	 * Default constructor initializes this as a 2D {@link KDPoint} describing
 	 * the Cartesian origin.
 	 */
 	public KDPoint(){
-		this(2);
+		this(0, 0);
 	}
 
 	/**
-	 * Initialize a <em>k</em>-dimensional {@link KDPoint} at the origin of the axes.
-	 * @param k The dimensionality of the {@link KDPoint}.
-	 * @throws RuntimeException if the provided dimensionality is &lt; 1.
+	 * Initialize a {@link KDPoint} with some {@code int} values. The dimensionality
+	 * of the point is implicitly given by the length of the argument {@code vals}.
+	 * @param vals The values with which to initialize the {@link KDPoint}.* @see System#arraycopy(Object, int, Object, int, int)
 	 */
-	public KDPoint(int k) {
-		if(k <= 0)
-			throw new RuntimeException("All KDPoints need to have a positive dimensionality.");
-		coords = new BigDecimal[k];
-		Arrays.fill(coords, BigDecimal.ZERO);
-	}
-
-	/**
-	 * Initialize a {@link KDPoint} with some double values. Implicitly sets the {@link KDPoint}'s
-	 * dimensionality.
-	 * @param vals The values with which to initialize the {@link KDPoint}.
-	 * @see System#arraycopy(Object, int, Object, int, int)
-	 */
-	public KDPoint(double... vals){
-		coords = new BigDecimal[vals.length];
-		for(int i = 0; i < vals.length; i ++)
-			coords[i] = new BigDecimal(vals[i]);
-	}
-
-
-	/**
-	 * Initialize a {@link KDPoint} with some {@link BigDecimal}values. Implicitly sets the {@link KDPoint}'s
-	 * dimensionality.
-	 * @param vals The values with which to initialize the {@link KDPoint}.
-	 * @see System#arraycopy(Object, int, Object, int, int)
-	 */
-	public KDPoint(BigDecimal... vals){
-		coords = new BigDecimal[vals.length];
+	public KDPoint(int... vals){
+		coords = new int[vals.length];
 		System.arraycopy(vals, 0, coords, 0, vals.length);
 	}
 	
@@ -124,7 +108,7 @@ public class KDPoint {
 	public int hashCode() {
 		int hash= 0;
 		for(int i = 0; i < coords.length; i++)
-			hash+= coords[i].intValue() *  Math.pow(2,i);
+			hash+= coords[i]  *  Math.pow(2,i);
 		return hash;
 	}
 
@@ -138,58 +122,47 @@ public class KDPoint {
 		if(oCasted.coords.length != coords.length)
 			return false;
 		for(int i = 0; i < coords.length; i++)
-			if(!coords[i].equals(oCasted.coords[i]))
+			if(!(coords[i] == (oCasted.coords[i])))
 				return false;
 		return true;
 	}
 	
 	/**
-	 * Calculate the <b><u>squared</u> Euclidean distance</b> between this and p.
+	 * Calculate the <b>Euclidean distance</b> between this and p.
 	 * @param p The {@link KDPoint} to calculate the distance to.
 	 * @return The <b><u>squared</u> Euclidean distance</b> between the two {@link KDPoint}s.
 	 * @throws RuntimeException if the dimensionality of the two KDPoints is different.
 	 */
-	public BigDecimal distanceSquared(KDPoint p) throws RuntimeException{
+	public double euclideanDistance(KDPoint p) throws RuntimeException{ // TODO: Make faster
 		if(coords.length != p.coords.length)
 			throw new RuntimeException("Cannot calculate the Euclidean Distance between KDPoints of different dimensionalities.");
 		double sum = 0.0;
 		for(int i = 0; i < coords.length; i++)
-			sum += Math.pow(coords[i].doubleValue()- p.coords[i].doubleValue(), 2);
-		return new BigDecimal(sum);
+			sum = sum + Math.pow((coords[i] - p.coords[i]), 2);
+		return Math.sqrt(sum);
 	}
 	
 	/**
 	 * A static version of distance calculations. Since the Squared Euclidean distance is symmetric,
-	 * it's somewhat awkward to have to specify a start and end point, as {@link #distanceSquared(KDPoint) distanceSquared} does,
+	 * it's somewhat awkward to have to specify a start and end point, as {@link #euclideanDistance(KDPoint) distanceSquared} does,
 	 * so we provide this option as well.
 	 * @param p1 One of the two {@link KDPoint}s to calculate the distance of.
 	 * @param p2 One of the two {@link KDPoint}s to calculate the distance of.
 	 * @return The Euclidean distance between p1 and p2.
 	 */
-	public static BigDecimal distanceSquared(KDPoint p1, KDPoint p2){
-		return p1.distanceSquared(p2);
+	public static double euclideanDistance(KDPoint p1, KDPoint p2){
+		return p1.euclideanDistance(p2);
 	}
 	
 	@Override
-	public String toString(){
-		StringBuilder retVal = new StringBuilder("A KDPoint with coordinates: (");
-		for(int i = 0; i < coords.length; i++){
-			retVal.append(coords[i]);
-			if(i < coords.length - 1) 
-				retVal.append(", ");
+	public String toString(){ {
+			StringBuilder retVal = new StringBuilder("(");
+			for(int i = 0; i < coords.length; i++){
+				retVal.append(coords[i]);
+				if(i < coords.length - 1)
+					retVal.append(", ");
+			}
+			return retVal +")";
 		}
-		return retVal +")";
 	}
-
-	public String compactToString()
-	{
-		StringBuilder retVal = new StringBuilder("(");
-		for(int i = 0; i < coords.length; i++){
-			retVal.append(coords[i]);
-			if(i < coords.length - 1)
-				retVal.append(", ");
-		}
-		return retVal +")";
-	}
-
 }

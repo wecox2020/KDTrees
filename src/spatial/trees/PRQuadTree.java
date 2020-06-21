@@ -3,12 +3,10 @@ package spatial.trees;
 import spatial.kdpoint.KDPoint;
 import spatial.knnutils.BoundedPriorityQueue;
 import spatial.knnutils.NNData;
-import spatial.nodes.KDTreeNode;
 import spatial.nodes.PRQuadBlackNode;
 import spatial.nodes.PRQuadGrayNode;
 import spatial.nodes.PRQuadNode;
 
-import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedList;
@@ -30,16 +28,21 @@ import java.util.LinkedList;
  * <p><b>YOU SHOULD ***NOT*** EDIT THIS CLASS!</b> If you do, you risk <b>not passing our tests!</b> All the functionality
  * of the P-R QuadTree will be implemented by the various {@link PRQuadNode}s.</p>
  *
- * @author <a href="https://github.com/JasonFil">Jason Filippou</a>
+ * @author <a href="https://github.com/jasonfilippou">Jason Filippou</a>
  *
+ * @see PRQuadNode
+ * @see PRQuadBlackNode
+ * @see PRQuadGrayNode
  */
 public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
 
     /**
-     * Encoding infinity with a negative number is safer than {@link Double#MAX_VALUE} for our purposes,
-     * and allows for faster comparisons as well. An application may use it as given.
+     * Encoding infinity with a negative number is safer than {@link Integer#MAX_VALUE}
+     * for our purposes, and allows for faster comparisons as well. An application may
+     * use it as given.
      */
-    public static final BigDecimal INFTY = new BigDecimal(-1);
+    public static final int INFTY = -1;
+
     /**
      * Our root is a {@link PRQuadNode}. If {@code null}, it is assumed to be a white nodes.
 
@@ -51,13 +54,11 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
      */
     private int bucketingParam;
 
-
     /**
-     * n defines the area spanned by the root: 2^n &#42; 2^n, with the origin (0,0) assumed to be the bottom left corner.
-     * This means that the centroid has coordinates (2^(n-1), 2^(n-1))
+     * k defines the area spanned by the root: 2^k &#42; 2^k, with the origin (0,0) assumed to be the bottom left corner.
+     * This means that the centroid has coordinates (2^(k-1), 2^(k-1))
      */
     private int k;
-
 
     /**
      * The number of {@link KDPoint}s held by the PRQuadTree. Note that, unlike KD-Trees, in PR-QuadTrees, the
@@ -68,7 +69,7 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
     /**
      * Constructor for PRQuadTree objects.
      * @param k The exponent of 2 that defines the area assumed to be spanned by the <b>entire QuadTree</b> (i.e by its
-     *          root node). Remember that, as in  class, this means that the centroid of the original quadrant
+     *          root node). It is strictly positive. Remember that, as in class, this means that the centroid of the original quadrant
      *          would be implicitly stored at (0, 0), and when we split for the first time, the cross (+) centered
      *          in (0, 0) would define 4 centroids: The top-right corner would be at ( 2^(k-1), 2^(k-1) ), the bottom-right
      *          at ( 2^(k-1),  -2 ^(k-1)), etc. For example, if this parameter is given as 5, the top-right corner of
@@ -78,21 +79,30 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
      *          on the sides</b> of the quadrants that our quadtree will recursively produce!
      * @param bucketingParam The "bucketing" parameter, which controls how many {@link KDPoint}s a {@link PRQuadBlackNode}
      *                       of this tree can hold before having to split.
-     * @throws RuntimeException if bucketingParam &lt; 1
+     * @throws RuntimeException if {@code bucketingParam} &lt; 1 or {@code k } &lt; 1
      * @see #k
      * @see #bucketingParam
      */
     public PRQuadTree(int k, int bucketingParam){
-        if(bucketingParam < 1)
-            throw new RuntimeException("Bucketing parameter needs to be at least 1!");
+        if(k < 1 || bucketingParam < 1)
+            throw new RuntimeException("k should be 1 and above, and bucketingParam 1 and above. " +
+                    "Provided: k=" + k + ", bucketingParam=" + bucketingParam + ".");
         this.k = k;
         this.bucketingParam = bucketingParam;
         count = 0;
     }
 
 
+
+    /**
+     * Inserts {@code p} into the {@link SpatialDictionary}. If {@code p} is <b>already</b> in the tree,
+     * this method has no effect.
+     * @param p The {@link KDPoint} to insert into the tree.
+     * @throws CentroidAccuracyException if the insertion causes a decomposition of the
+     * tree that is too &quot; fine &quot; for {@code int} coordinate {@link KDPoint}s can handle.
+     */
     @Override
-    public void insert(KDPoint p) {
+    public void insert(KDPoint p) throws CentroidAccuracyException{
         if(root == null) {  // white nodes, first point stored
             // Notice that we are calling the second constructor of PRQuadBlackNode here!
             root = new PRQuadBlackNode(new KDPoint(0, 0), k, bucketingParam, p); // Initial centroid assumed at (0, 0).
@@ -107,11 +117,9 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
 
     @Override
     public void delete(KDPoint p) {
-        if(root != null) {
-            if(search(p)) {
+        if(root != null && search(p)) {
                 root = root.delete(p);
                 count--;
-            }
         }
     }
 
@@ -156,8 +164,8 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
 
 
     @Override
-    public Collection<KDPoint> range(KDPoint p, BigDecimal range) {
-        LinkedList<KDPoint> pts = new LinkedList<KDPoint>();
+    public Collection<KDPoint> range(KDPoint p, double range) {
+        LinkedList<KDPoint> pts = new LinkedList<>();
         if(root == null)
             return pts; // empty
         else
@@ -167,17 +175,17 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
 
     @Override
     public KDPoint nearestNeighbor(KDPoint p) {
-        NNData<KDPoint> n = new NNData<KDPoint>(null, INFTY);
+        NNData<KDPoint> n = new NNData<>(null, INFTY);
         if(root != null)
             n = root.nearestNeighbor(p, n);
-        return n.bestGuess;
+        return n.getBestGuess();
     }
 
     @Override
     public BoundedPriorityQueue<KDPoint> kNearestNeighbors(int k, KDPoint p) {
         if(k <= 0)
             throw new RuntimeException("The value of k provided, " + k + ", is invalid: Please provide a positive integer.");
-        BoundedPriorityQueue<KDPoint> queue = new BoundedPriorityQueue<KDPoint>(k);
+        BoundedPriorityQueue<KDPoint> queue = new BoundedPriorityQueue<>(k);
         if(root != null)
             root.kNearestNeighbors(k, p, queue);
         return queue; // Might be empty; that's not a problem.
@@ -185,14 +193,14 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
 
     /**
      * A simple tree description generator for VizTree/CompactVizTree. It returns a string representation for the QuadTree
-     * This tree representation follows jimblackler style(http://jimblackler.net/treefun/index.html)
+     * This tree representation follows jimblackler style (http://jimblackler.net/treefun/index.html).
      * To identify child-index (left/right or NW,NE,SW,SE), I use "*" as special character to indicate null leafs
-     * @param verbose whether to print the tree description to stdout or not
-     * @return a string representation for the QuadTree.
+     * @param verbose whether to print the tree description to {@code stdout} or not
+     * @return An {@link ArrayList} that gives a {@code String}-fied representation of the PR-QuadTree.
      */
     public ArrayList<String> treeDescription(boolean verbose)
     {
-        ArrayList<String> tree = new ArrayList<String>();
+        ArrayList<String> tree = new ArrayList<>();
         treeDescription(root,"",tree,verbose);
         return tree;
     }
@@ -201,7 +209,7 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
      * Private <b>recursive</b> help for treeDescription
      * @param root the current subtree root
      * @param space tracks parent-child relationship
-     * @param tree Arraylist containing the tree description
+     * @param tree {@link ArrayList} containing the tree description
      * @param verbose whether to print the tree description to stdout or not
      */
     private void treeDescription(PRQuadNode root, String space, ArrayList<String> tree, boolean verbose)
@@ -216,16 +224,16 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
         {
             PRQuadBlackNode blackNode = ((PRQuadBlackNode) root);
             Collection<KDPoint> points = blackNode.getPoints();
-            StringBuilder visTreeDesc = new StringBuilder("C:"+root.getCentroid().compactToString());
-            StringBuilder treedump = new StringBuilder("C:"+root.getCentroid().compactToString());
+            StringBuilder visTreeDesc = new StringBuilder("C:"+root.getCentroid().toString());
+            StringBuilder treedump = new StringBuilder("C:"+root.getCentroid().toString());
             for(KDPoint point : points) {
                 if (point == null) {
                     visTreeDesc.append("*");
                     treedump.append("*");
                 }
                 else {
-                    visTreeDesc.append("\nP:" + point.compactToString());
-                    treedump.append(" , P:" + point.compactToString());
+                    visTreeDesc.append("\nP:").append(point.toString());
+                    treedump.append(" , P:").append(point.toString());
                 }
             }
 
@@ -237,9 +245,9 @@ public class PRQuadTree implements SpatialDictionary,SpatialQuerySolver {
         else if(root.getClass() == PRQuadGrayNode.class)
         {
             if (verbose)
-                System.out.println(space+"C:"+root.getCentroid().compactToString());
+                System.out.println(space+"C:"+root.getCentroid().toString());
 
-            tree.add(space+"C:"+root.getCentroid().compactToString());
+            tree.add(space+"C:"+root.getCentroid().toString());
 
             PRQuadGrayNode grayNode = ((PRQuadGrayNode) root);
             PRQuadNode[] children = grayNode.getChildren();
