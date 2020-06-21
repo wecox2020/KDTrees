@@ -5,7 +5,6 @@ import spatial.kdpoint.KDPoint;
 import spatial.knnutils.BoundedPriorityQueue;
 import spatial.knnutils.NNData;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 
 /**
@@ -117,7 +116,7 @@ public class KDTreeNode {
      *              {@link KDPoint#distanceSquared(KDPoint)}.
      */
     public void range(KDPoint anchor, Collection<KDPoint> results,
-                      BigDecimal range, int currDim , int dims){
+                      double range, int currDim , int dims){
         throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
     }
 

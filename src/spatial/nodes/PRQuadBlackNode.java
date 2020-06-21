@@ -6,7 +6,6 @@ import spatial.knnutils.BoundedPriorityQueue;
 import spatial.knnutils.NNData;
 import spatial.trees.PRQuadTree;
 
-import java.math.BigDecimal;
 import java.util.Collection;
 
 
@@ -143,7 +142,7 @@ public class PRQuadBlackNode extends PRQuadNode {
 
     @Override
     public void range(KDPoint anchor, Collection<KDPoint> results,
-                      BigDecimal range) {
+                      double range) {
         throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
     }
 

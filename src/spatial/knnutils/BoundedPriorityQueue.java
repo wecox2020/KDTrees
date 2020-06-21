@@ -1,7 +1,5 @@
 package spatial.knnutils;
 
-
-import java.math.BigDecimal;
 import java.util.Iterator;
 
 import spatial.exceptions.UnimplementedMethodException;
@@ -15,7 +13,7 @@ import spatial.exceptions.UnimplementedMethodException;
  *
  * <p><b>YOU ***** MUST ***** IMPLEMENT THIS CLASS!</b></p>
  *
- * @author  <a href = "https://github.com/JasonFil/">Jason Filippou</a>
+ * @author  <a href = "https://github.com/jasonfillipou/">Jason Filippou</a>
  *
  * @see PriorityQueue
  * @see PriorityQueueNode
@@ -52,7 +50,7 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 	 * @param priority The priority of the element to insert in the queue.
 	 */
 	@Override
-	public void enqueue(T element, BigDecimal priority) {
+	public void enqueue(T element, double priority) {
 		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
 	}
 
