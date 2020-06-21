@@ -174,7 +174,7 @@ public abstract class PRQuadNode {
 
     /**
      * <p>Executes a range query in the given {@link PRQuadNode}. Given an &quot;anchor&quot; {@link KDPoint},
-     * all {@link KDPoint}s that have a {@link KDPoint#euclideanDistance(KDPoint) distanceSquared} of <b>at most</b> range
+     * all {@link KDPoint}s that have a {@link KDPoint#euclideanDistance(KDPoint) euclideanDistance} of <b>at most</b> range
      * <b>INCLUSIVE</b> from the anchor point <b>except</b> for the anchor itself should be inserted into the {@link Collection}
      * that is passed.</p>
      *
@@ -182,12 +182,10 @@ public abstract class PRQuadNode {
      * as our currDim allows and <em>prune subtrees</em> that we <b>don't</b> have to visit as we backtrack. Consult
      * all of our resources if you need a reminder of how these should work.</p>
      *
-     * <p>Finally, note that the range parameter is a Euclidean Distance, not the square of a Euclidean
-     * Distance! </p>
      * @param anchor The centroid of the hypersphere that the range query implicitly creates.
      * @param results A {@link Collection} that accumulates all the {@link }
      * @param range The <b>INCLUSIVE</b> range from the &quot;anchor&quot; {@link KDPoint}, within which all the
- *              {@link KDPoint}s that satisfy our query will fall. The distanceSquared metric used} is defined by
+ *              {@link KDPoint}s that satisfy our query will fall. The euclideanDistance metric used} is defined by
  *              {@link KDPoint#euclideanDistance(KDPoint)}.
      */
     public abstract void range(KDPoint anchor, Collection<KDPoint> results,
@@ -202,7 +200,7 @@ public abstract class PRQuadNode {
      * <b>bounds</b> the acceptable solutions under the current <b>best solution</b>, which is passed as
      * an argument. This approach is known in Computer Science as &quot;branch-and-bound&quot; and it helps us solve an
      * otherwise exponential complexity problem (nearest neighbors) efficiently. Remember that when we want to determine
-     * if we need to recurse to a different subtree, it is <b>necessary</b> to compare the distanceSquared reported by
+     * if we need to recurse to a different subtree, it is <b>necessary</b> to compare the euclideanDistance reported by
      * {@link KDPoint#euclideanDistance(KDPoint)} and coordinate differences! Those are comparable with each other because they
      * are the same data type ({@link Double}).</p>
      *
@@ -227,7 +225,7 @@ public abstract class PRQuadNode {
      * <b>bounds</b> the acceptable solutions under the current <b>worst solution</b>, which is maintained as the
      * last element of the provided {@link BoundedPriorityQueue}. This is another instance of &quot;branch-and-bound&quot;
      * Remember that when we want to determine if we need to recurse to a different subtree, it is <b>necessary</b>
-     * to compare the distanceSquared reported by* {@link KDPoint#euclideanDistance(KDPoint)} and coordinate differences!
+     * to compare the euclideanDistance reported by* {@link KDPoint#euclideanDistance(KDPoint)} and coordinate differences!
      * Those are comparable with each other because they are the same data type ({@link Double}).</p>
      *
      * <p>The main difference of the implementation of this method and the implementation of
@@ -239,7 +237,7 @@ public abstract class PRQuadNode {
      *          avoid ties in Binary Classification tasks.
      * @param anchor The &quot;anchor&quot; {@link KDPoint} of the nearest neighbor query.
      * @param queue A {@link BoundedPriorityQueue} that will maintain at most k nearest neighbors of
-     *              the anchor point at all times, sorted by distanceSquared to the point.
+     *              the anchor point at all times, sorted by euclideanDistance to the point.
      *
      * @see BoundedPriorityQueue
      */

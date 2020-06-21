@@ -84,7 +84,7 @@ public class PRQuadBlackNode extends PRQuadNode {
      *     this means that the method will polymorphically call itself, splitting black nodes into gray nodes as long as
      *     is required for there to be a set of 4 quadrants that separate the points between them. This is one of the major
      *     bottlenecks in PR-QuadTrees; the presence of a pair of {@link KDPoint}s with a very small {@link
-     *     KDPoint#distanceSquared(KDPoint) distanceSquared} between them can negatively impact search in certain subplanes, because
+     *     KDPoint#euclideanDistance(KDPoint) euclideanDistance} between them can negatively impact search in certain subplanes, because
      *     the subtrees through which those subplanes will be modeled will be &quot;unnecessarily&quot; tall.</li>
      * </ol>
      *

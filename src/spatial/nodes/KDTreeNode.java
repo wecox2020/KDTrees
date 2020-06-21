@@ -97,7 +97,7 @@ public class KDTreeNode {
 
     /**
      * <p>Executes a range query in the given {@link KDTreeNode}. Given an &quot;anchor&quot; {@link KDPoint},
-     * all {@link KDPoint}s that have a {@link KDPoint#distanceSquared(KDPoint) distanceSquared} of <b>at most</b> range squared
+     * all {@link KDPoint}s that have a {@link KDPoint#euclideanDistance(KDPoint) euclideanDistance} of <b>at most</b> range
      * <b>INCLUSIVE</b> from the anchor point <b>except</b> for the anchor itself should be inserted into the {@link Collection}
      * that is passed.</p>
      *
@@ -105,15 +105,13 @@ public class KDTreeNode {
      * as our currDim allows and <em>prune subtrees</em> that we <b>don't</b> have to visit as we backtrack. Consult
      * all of our resources if you need a reminder of how these should work.</p>
      *
-     * <p>Finally, note that the range parameter is a Euclidean Distance, not the square of a Euclidean
-     * Distance! </p>
      * @param anchor The centroid of the hypersphere that the range query implicitly creates.
      * @param results A {@link Collection} that accumulates all the {@link }
      * @param currDim The current dimension examined by the {@link KDTreeNode}.
      * @param dims The total number of dimensions of our {@link KDPoint}s.
      * @param range The <b>INCLUSIVE</b> range from the &quot;anchor&quot; {@link KDPoint}, within which all the
-     *              {@link KDPoint}s that satisfy our query will fall. The distanceSquared metric used} is defined by
-     *              {@link KDPoint#distanceSquared(KDPoint)}.
+     *              {@link KDPoint}s that satisfy our query will fall. The euclideanDistance metric used} is defined by
+     *              {@link KDPoint#euclideanDistance(KDPoint)}.
      */
     public void range(KDPoint anchor, Collection<KDPoint> results,
                       double range, int currDim , int dims){
@@ -123,15 +121,15 @@ public class KDTreeNode {
 
     /**
      * <p>Executes a nearest neighbor query, which returns the nearest neighbor, in terms of
-     * {@link KDPoint#distanceSquared(KDPoint)}, from the &quot;anchor&quot; point.</p>
+     * {@link KDPoint#euclideanDistance(KDPoint)}, from the &quot;anchor&quot; point.</p>
      *
      * <p>Recall that, in the descending phase, a NN query behaves <em>greedily</em>, approaching our
      * &quot;anchor&quot; point as fast as currDim allows. While doing so, it implicitly
      * <b>bounds</b> the acceptable solutions under the current <b>best solution</b>, which is passed as
      * an argument. This approach is known in Computer Science as &quot;branch-and-bound&quot; and it helps us solve an
      * otherwise exponential complexity problem (nearest neighbors) efficiently. Remember that when we want to determine
-     * if we need to recurse to a different subtree, it is <b>necessary</b> to compare the distanceSquared reported by
-     * {@link KDPoint#distanceSquared(KDPoint)} and coordinate differences! Those are comparable with each other because they
+     * if we need to recurse to a different subtree, it is <b>necessary</b> to compare the euclideanDistance reported by
+     * {@link KDPoint#euclideanDistance(KDPoint)} and coordinate differences! Those are comparable with each other because they
      * are the same data type ({@link Double}).</p>
      *
      * @return An object of type {@link NNData}, which exposes the pair (distance_of_NN_from_anchor, NN),
@@ -153,14 +151,14 @@ public class KDTreeNode {
 
     /**
      * <p>Executes a nearest neighbor query, which returns the nearest neighbor, in terms of
-     * {@link KDPoint#distanceSquared(KDPoint)}, from the &quot;anchor&quot; point.</p>
+     * {@link KDPoint#euclideanDistance(KDPoint)}, from the &quot;anchor&quot; point.</p>
      *
      * <p>Recall that, in the descending phase, a NN query behaves <em>greedily</em>, approaching our
      * &quot;anchor&quot; point as fast as currDim allows. While doing so, it implicitly
      * <b>bounds</b> the acceptable solutions under the current <b>worst solution</b>, which is maintained as the
      * last element of the provided {@link BoundedPriorityQueue}. This is another instance of &quot;branch-and-bound&quot;
      * Remember that when we want to determine if we need to recurse to a different subtree, it is <b>necessary</b>
-     * to compare the distanceSquared reported by* {@link KDPoint#distanceSquared(KDPoint)} and coordinate differences!
+     * to compare the euclideanDistance reported by* {@link KDPoint#euclideanDistance(KDPoint)} and coordinate differences!
      * Those are comparable with each other because they are the same data type ({@link Double}).</p>
      *
      * <p>The main difference of the implementation of this method and the implementation of
@@ -174,7 +172,7 @@ public class KDTreeNode {
      * @param currDim The current dimension considered.
      * @param dims The total number of dimensions considered.
      * @param queue A {@link BoundedPriorityQueue} that will maintain at most k nearest neighbors of
-     *              the anchor point at all times, sorted by distanceSquared to the point.
+     *              the anchor point at all times, sorted by euclideanDistance to the point.
      *
      * @see BoundedPriorityQueue
      */

@@ -63,12 +63,12 @@ public class KDPoint {
 	public static final KDPoint  MINUSONEONE = new KDPoint(-1, 1);
 
 	/**
-	 * A static method that returns a {@link KDPoint} instance that describes the cartesian origin
+	 * A static method that returns a {@link KDPoint} instance that describes the Cartesian origin
 	 * corresponding to the dimensionality of the space provided.
 	 *
 	 * @param dim  The dimensionality of the space.
-	 *
-	 * @throws InvalidDimensionalityException if dim <= 0.
+	 * @return The origin of the space, with appropriate dimensionality.
+	 * @throws InvalidDimensionalityException if dim is less than or equal to 0.
 	 */
 	public static KDPoint getOriginInDim(int dim) throws InvalidDimensionalityException {
 		if(dim <= 0)
@@ -130,7 +130,7 @@ public class KDPoint {
 	/**
 	 * Calculate the <b>Euclidean distance</b> between this and p.
 	 * @param p The {@link KDPoint} to calculate the distance to.
-	 * @return The <b><u>squared</u> Euclidean distance</b> between the two {@link KDPoint}s.
+	 * @return The <b>Euclidean distance</b> between the two {@link KDPoint}s.
 	 * @throws RuntimeException if the dimensionality of the two KDPoints is different.
 	 */
 	public double euclideanDistance(KDPoint p) throws RuntimeException{ // TODO: Make faster
@@ -143,8 +143,8 @@ public class KDPoint {
 	}
 	
 	/**
-	 * A static version of distance calculations. Since the Squared Euclidean distance is symmetric,
-	 * it's somewhat awkward to have to specify a start and end point, as {@link #euclideanDistance(KDPoint) distanceSquared} does,
+	 * A static version of distance calculations. Since the Euclidean distance is symmetric,
+	 * it's somewhat awkward to have to specify a start and end point, as {@link #euclideanDistance(KDPoint) euclideanDistance} does,
 	 * so we provide this option as well.
 	 * @param p1 One of the two {@link KDPoint}s to calculate the distance of.
 	 * @param p2 One of the two {@link KDPoint}s to calculate the distance of.

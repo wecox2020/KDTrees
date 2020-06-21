@@ -28,7 +28,7 @@ public class NNData<T> {
 	/**
 	 * Simple constructor that stores its arguments.
 	 * @param bestGuess The current best guess.
-	 * @param bestDist The distanceSquared between the current best guess and the &quot;anchor&quot; element.
+	 * @param bestDist The euclideanDistance between the current best guess and the &quot;anchor&quot; element.
 	 */
 	public NNData(T bestGuess, double bestDist){
 		this.bestGuess = bestGuess;
