@@ -37,7 +37,7 @@ following section.
 This project can essentially be divided into two "mini-projects". It
 doesn't matter which you implement first and which you implement
 second, so we will just *arbitrarily* decide to call the **KD-Tree**
-part of the project the **first** part, and the **PR-QuadTree** par of
+part of the project the **first** part, and the **PR-QuadTree** part of
 the project the **second** part.
 
 In this project, we supply you with a lot of code to use to build your
@@ -52,12 +52,8 @@ Both KD-Trees and PR-QuadTrees are **multi-dimensional
 indices**. Since they are multi-dimensional indices, the first thing
 they need to know is the **nature of the keys that they will store**.
 The type of key stored is defined by the class
-`spatial.kdpoint.KDPpoint`. Since, in theory, a point can have any
-real number in its dimensions, the inner representation of `KDPoint`
-will be an array of `BigDecimal` instances. A `BigDecimal` is
-essentially an extremely precise `double` which can be safely compared
-to another (with `equals()` and `compareTo()`) without the problems
-that arise from comparing two primitive `double`s.
+`spatial.kdpoint.KDPpoint`. To keep things simpler for this project,
+the inner representation of `KDPoint` will be an array of `int`s.
 
 Instances of `KDPoint` will appear in virtually **all of the methods**
 that you will have to implement! You should study `KDPoint`
@@ -195,7 +191,7 @@ implementation. The entire point of the heuristic and branch-and-bound
 approaches that we follow in class is that **huge swaths of a given
 KD-Tree/PR-QuadTree can be avoided**. We want you to show us that you
 can **implement these algorithms**, that you can finesse your way
-around the recursive calls, make the appropriate checks, disambiguate
+around the recursive calls, make the appropriate checks, and disambiguate
 between Mahattan and Euclidean distances. Everybody can do a DFS of a
 tree and an insertion into a list; a CS420 student *can* and *should*
 do better. We will be **manually** inspecting your submission to make
@@ -205,13 +201,6 @@ will **not** get **any** credit from the submit server tests that test
 spatial queries.
 
 ## Hints
-
- * Don't spend too much time reviewing `BigDecimal`. Just make sure
-   you understand that you compare them using `equals()`,
-   `compareTo()`, and you can always retrieve an underlying `double`
-   valud by applying the "getter" method `doubleValue()`. You do
-   **not** need to understand how `BigDecimal` ensures immeasurably
-   higher accuracy than a primitive `double` in this project.
 
  * For the KD-Tree component:
 
