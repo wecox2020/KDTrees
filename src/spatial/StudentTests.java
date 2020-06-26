@@ -2,9 +2,7 @@ package spatial;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import spatial.kdpoint.InvalidDimensionalityException;
 import spatial.kdpoint.KDPoint;
 import spatial.knnutils.BoundedPriorityQueue;
@@ -82,27 +80,19 @@ public class StudentTests {
         System.gc();
     }
 
-    /**
-     *  A rule to help us with tests that expect a certain Exception to be thrown.
-     */
-    @Rule
-    public ExpectedException thrown= ExpectedException.none();
-
     /* ******************************************************************************************************** */
     /* ******************************************************************************************************** */
     /* ***************************************** BPQ Tests ************************************************* */
     /* ******************************************************************************************************** */
     /* ******************************************************************************************************** */
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testBPQZeroCapacityProvided(){
-        thrown.expect(IllegalArgumentException.class);
         new BoundedPriorityQueue<>(0);
     }
 
-    @Test
+    @Test(expected=IllegalArgumentException.class)
     public void testBPQNegativeCapacityProvided(){
-        thrown.expect(IllegalArgumentException.class);
         new BoundedPriorityQueue<>(-1);
     }
 

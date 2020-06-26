@@ -1,7 +1,6 @@
 package spatial.kdpoint;
 
 import org.junit.*;
-import org.junit.rules.ExpectedException;
 
 import java.util.Random;
 
@@ -44,12 +43,6 @@ public class KDPointTests {
         r = null;
     }
 
-    /**
-     * A rule to help us with tests that expect a certain Exception to be thrown.
-     */
-    @Rule
-    public ExpectedException thrown = ExpectedException.none();
-
     @Test
     public void testKDPointArgFreeConstructor() {
         assertEquals("A freshly created KDPoint should represent the 2D Cartesian origin (0, 0).",
@@ -89,17 +82,25 @@ public class KDPointTests {
         }
 
         // Let's also check if some exceptions are properly thrown.
-        thrown.expect(RuntimeException.class);
-        origin2D.euclideanDistance(origin3D);
+        try {
+        	origin2D.euclideanDistance(origin3D);
+        	fail("Expected RuntimeException");
+        } catch (RuntimeException e) {}
 
-        thrown.expect(RuntimeException.class);
-        origin3D.euclideanDistance(origin2D);
+        try {
+        	origin3D.euclideanDistance(origin2D);
+        	fail("Expected RuntimeException");
+        } catch (RuntimeException e) {}
 
-        thrown.expect(RuntimeException.class);
-        euclideanDistance(origin2D, origin3D);
+        try {
+        	euclideanDistance(origin2D, origin3D);
+        	fail("Expected RuntimeException");
+        } catch (RuntimeException e) {}
 
-        thrown.expect(RuntimeException.class);
-        euclideanDistance(origin3D, origin2D);
+        try {
+        	euclideanDistance(origin3D, origin2D);
+        	fail("Expected RuntimeException");
+        } catch (RuntimeException e) {}
 
         // Simple stuff first, 1-D points!
         KDPoint first = new KDPoint(3), second = new KDPoint(0);
@@ -169,8 +170,10 @@ public class KDPointTests {
         // dimensionalities:
         for (int i = 0; i < MAX_ITER; i++) {
             int coord = r.nextInt(MAX_COORD);
-			thrown.expect(RuntimeException.class);
-            euclideanDistance(new KDPoint(coord), new KDPoint(coord, coord));
+			try {
+				euclideanDistance(new KDPoint(coord), new KDPoint(coord, coord));
+				fail("Expected RuntimeException");
+			} catch ( RuntimeException e ) {}
         }
     }
 
