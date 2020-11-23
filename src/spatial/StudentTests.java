@@ -266,7 +266,7 @@ public class StudentTests {
         for (int i=0;i<kNN;i++)
         {
             actualPoint = knnPoints.dequeue();
-            assertTrue("Expected KNN result should not contain "+actualPoint ,expectedKnnPoints.contains(actualPoint));
+            assertTrue("KNN result contains "+actualPoint+", which was not expected" ,expectedKnnPoints.contains(actualPoint));
         }
 
     }
