@@ -5,7 +5,7 @@
 In this project you will implement **KD-Trees** and **P-R
 (Point-Region) QuadTrees**.  You will have to implement **both**
 dictionary and spatial query functionality. You will be tested against
-unit tests hosted on the department's submit server.
+unit tests hosted on the grading server.
 
 Half of this project is the study of spatial data structures and half
 the practice of Object-Oriented Programming primitives, in particular,
@@ -98,7 +98,7 @@ of lists made up of elements having the same priority, sorted by
 insertion order, or anything else, as long as the implementation is
 **correct** and provides **elementary** efficiency for `first()`,
 `dequeue()`, `enqueue()`, and `last()`. By "elementary efficiency" we
-essentially mean: *Don't make it so bad that the submit server will
+essentially mean: *Don't make it so bad that the grading server will
 hang.* Doing this would be a *major achievement* in its own right, and
 we trust that we don't need to define it any further.  However, the
 semantics of `BoundedPriorityQueue` are different from that of a
@@ -143,7 +143,7 @@ Some points of interest:
    `PRQuadWhiteNode` for your own purposes (such as debugging), if you
    want to. Remember: you should **not** alter the **existing** code
    base in **any** way, but **adding your own functionality** is
-   **always** fine. The submit server unit test suites only care about
+   **always** fine. The grading server unit test suites only care about
    what they can call, and what they can call is the `public` methods
    we need you to implement.
 
@@ -177,7 +177,7 @@ Some points of interest:
 
 ### Important note about implementation of spatial queries
 
-It is **possible** to pass the relevant tests on the submit server by
+It is **possible** to pass the relevant tests on the grading server by
 implementing range and $`k`$-NN queries *naively*. That is to say, you
 can pass a range query test by performing a Depth-First Traversal of
 the tree, adding all points to a list, and then filtering out the
@@ -197,7 +197,7 @@ tree and an insertion into a list; a CS420 student *can* and *should*
 do better. We will be **manually** inspecting your submission to make
 sure you follow these algorithms closely. Submissions that do **not**
 follow these algorithms and instead perform a naive search of the tree
-will **not** get **any** credit from the submit server tests that test
+will **not** get **any** credit from the grading server tests that test
 spatial queries.
 
 ## Hints
