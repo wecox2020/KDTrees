@@ -76,7 +76,7 @@ public class KDTreeNode {
      * special cases.</p>
      * @param currDim The current dimension to consider.
      * @param dims The total number of dimensions that the space considers.
-     * @param pIn The {@link KDPoint} to insert into the node.
+     * @param pIn The {@link KDPoint} to delete from the node.
      * @see #insert(KDPoint, int, int)
      * @return A reference to this after the deletion takes place.
      */
