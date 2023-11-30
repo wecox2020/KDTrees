@@ -200,6 +200,11 @@ follow these algorithms and instead perform a naive search of the tree
 will **not** get **any** credit from the grading server tests that test
 spatial queries.
 
+It is also worth reminding you that our range and nearest-neighbor
+queries explicitly **do not** include the anchor point of the query.
+If you are searching for an anchor point $`p`$, and the only point
+in the tree happens to be $`p`$, then the query should *fail*.
+
 ## Hints
 
  * For the KD-Tree component:
