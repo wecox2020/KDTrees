@@ -106,6 +106,10 @@ classic Priority Queue in that it limits the number of "best
 neighbors" that a given `KDPoint` can have.  Consult the lecture
 slides for more information on what we mean by that.
 
+Note that your `BoundedPriorityQueue` will need to be `Iterable`, with
+fail-fast iterators.
+
+
 ### PR-QuadTree
 
 The following figure contains a UML diagram that shows the structure
@@ -161,6 +165,10 @@ Some points of interest:
    `PRQuadBlackNode` actually uses any geometrical information**; it
    just stores `KDPoint`s. **We will not answer this question in the
    writeup**; it is for you to think about.
+
+ * Because we are only storing integer coordinates, there is a minimum
+   size for a region. If you need to split a region of this size, your
+   code should throw a `CentroidAccuracyException`.
 
 ### Goodies
 
