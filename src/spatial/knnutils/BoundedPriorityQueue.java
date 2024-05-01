@@ -1,6 +1,7 @@
 package spatial.knnutils;
 
 import java.util.Iterator;
+import java.util.LinkedList;
 
 import spatial.exceptions.UnimplementedMethodException;
 
@@ -24,7 +25,9 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 	/* *************  PLACE YOUR PRIVATE FIELDS AND METHODS HERE: ************ */
 	/* *********************************************************************** */
 
-
+	LinkedList<PriorityQueueNode<T>> queue;
+	int size;
+	int order;
 
 	/* *********************************************************************** */
 	/* ***************  IMPLEMENT THE FOLLOWING PUBLIC METHODS:  ************ */
@@ -36,7 +39,13 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 	 * @throws IllegalArgumentException if size is not a strictly positive integer.
 	 */
 	public BoundedPriorityQueue(int size) throws IllegalArgumentException{
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		if (size < 1) {
+			throw new IllegalArgumentException();
+		} else {
+			order = 0;
+			this.size = size;
+			queue = new LinkedList<>();
+		}
 	}
 
 	/**
@@ -51,7 +60,24 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 	 */
 	@Override
 	public void enqueue(T element, double priority) {
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		PriorityQueueNode<T> node = new PriorityQueueNode<>(element, priority, order++);
+		if (queue.size() < size) {
+			int index;
+			for (index = 0; index < queue.size(); index++) {
+				PriorityQueueNode<T> curr = queue.get(index);
+				if (priority < curr.getPriority()) {
+					queue.add(index, node);
+					return;
+				}
+			}
+			queue.add(index, node);
+		} else {
+			PriorityQueueNode lastNode = queue.getLast();
+			if (priority < lastNode.getPriority()) {
+				queue.removeLast();
+				enqueue(element, priority);
+			}
+		}
 	}
 
 	@Override
