@@ -82,12 +82,14 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 
 	@Override
 	public T dequeue() {
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		PriorityQueueNode<T> node = queue.remove();
+		return node.getData();
 	}
 
 	@Override
 	public T first() {
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		PriorityQueueNode<T> node = queue.peekFirst();
+		return node.getData();
 	}
 	
 	/**
@@ -99,7 +101,8 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 	 * @return The maximum priority element in our queue, or null if the queue is empty.
 	 */
 	public T last() {
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		PriorityQueueNode<T> node = queue.peekLast();
+		return node.getData();
 	}
 
 	/**
@@ -109,21 +112,46 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 	 */
 	public boolean contains(T element)
 	{
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		Iterator<PriorityQueueNode<T>> iterator = queue.iterator();
+		while (iterator.hasNext()) {
+			PriorityQueueNode<T> node = iterator.next();
+			if (node.getData() == element) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	@Override
 	public int size() {
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		return queue.size();
 	}
 
 	@Override
 	public boolean isEmpty() {
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		return queue.isEmpty();
 	}
 
 	@Override
 	public Iterator<T> iterator() {
-		throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+		return new QueueIterator();
+	}
+
+	class QueueIterator implements Iterator<T> {
+
+		Iterator<PriorityQueueNode<T>> iterator;
+
+		public QueueIterator() {
+			iterator = queue.iterator();
+		}
+
+		public boolean hasNext() {
+			return iterator.hasNext();
+		}
+
+		public T next() {
+			PriorityQueueNode<T> node = iterator.next();
+			return node.getData();
+		}
 	}
 }
