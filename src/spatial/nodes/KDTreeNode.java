@@ -43,7 +43,10 @@ public class KDTreeNode {
      *          <b>mutable!!!</b>.
      */
     public KDTreeNode(KDPoint p){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        this.p = new KDPoint(p);
+        height = 0;
+        left = null;
+        right = null;
     }
 
     /**
@@ -56,8 +59,21 @@ public class KDTreeNode {
      * @param pIn The {@link KDPoint} to insert into the node.
      * @see #delete(KDPoint, int, int)
      */
-    public  void insert(KDPoint pIn, int currDim, int dims){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+    public void insert(KDPoint pIn, int currDim, int dims){
+        int coordinate = pIn.coords[currDim];
+        if (coordinate >= p.coords[currDim]) {
+            if (right == null) {
+                right = new KDTreeNode(pIn);
+            } else {
+                right.insert(pIn, ((currDim + 1) % dims), dims);
+            }
+        } else {
+            if (left == null) {
+                left = new KDTreeNode(pIn);
+            } else {
+                left.insert(pIn, ((currDim + 1) % dims), dims);
+            }
+        }
     }
 
     /**
@@ -81,8 +97,50 @@ public class KDTreeNode {
      * @return A reference to this after the deletion takes place.
      */
     public KDTreeNode delete(KDPoint pIn, int currDim, int dims){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        int coordinate = pIn.coords[currDim];
+        if (p.equals(pIn)) {
+            if (right == null) {
+                if (left == null) {
+                    return null;
+                } else {
+                    // Find the node in the left subtree with minimum value in current dimension
+                    // Replace this KDPoint with the minimum KDPoint
+                    // Move left subtree to the right
+                    // Recursively delete the minimum KDPoint
+                    KDPoint min = findMin(left, currDim, ((currDim + 1) % dims), dims);
+                }
+            } else {
+
+            }
+        } else if (coordinate >= p.coords[currDim]) {
+            right.delete(pIn, ((currDim + 1) % dims), dims);
+        } else if (coordinate < p.coords[currDim]) {
+            left.delete(pIn, ((currDim + 1) % dims), dims);
+        }
+        return this; 
     }
+
+    private KDPoint findMin(KDTreeNode currNode, int soughtDim, int currDim, int dims) {
+
+        if (currDim == soughtDim) {
+            return findMin(currNode.getLeft(), soughtDim, ((currDim + 1) % dims), dims);
+        } else {
+            KDPoint lmin = findMin(currNode.getLeft(), soughtDim, ((currDim + 1) % dims), dims);
+            KDPoint rmin = findMin(currNode.getRight(), soughtDim, ((currDim + 1) % dims), dims);
+            return min3(lmin, rmin, soughtDim);
+        }
+    }
+
+    private KDPoint min3(KDPoint lmin, KDPoint rmin, int soughtDim) {
+        int lcoord = lmin.coords[soughtDim];
+        int rcoord = rmin.coords[soughtDim];
+        if (lcoord >= rcoord) {
+            return rmin;
+        } else {
+            return lmin;
+        }
+    }
+
 
     /**
      * Searches the subtree rooted at the current node for the provided {@link KDPoint}.
