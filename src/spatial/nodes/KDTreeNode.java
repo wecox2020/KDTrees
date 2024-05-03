@@ -103,42 +103,58 @@ public class KDTreeNode {
                 if (left == null) {
                     return null;
                 } else {
-                    // Find the node in the left subtree with minimum value in current dimension
-                    // Replace this KDPoint with the minimum KDPoint
-                    // Move left subtree to the right
-                    // Recursively delete the minimum KDPoint
                     KDPoint min = findMin(left, currDim, ((currDim + 1) % dims), dims);
+                    p = min;
+                    right = left;
+                    left = null;
+                    right = right.delete(min, ((currDim + 1) % dims), dims);
                 }
             } else {
-
+                KDPoint min = findMin(right, currDim, ((currDim + 1) % dims), dims);
+                p = min;
+                right = right.delete(min, ((currDim + 1) % dims), dims);
             }
         } else if (coordinate >= p.coords[currDim]) {
-            right.delete(pIn, ((currDim + 1) % dims), dims);
-        } else if (coordinate < p.coords[currDim]) {
-            left.delete(pIn, ((currDim + 1) % dims), dims);
+            right = right.delete(pIn, ((currDim + 1) % dims), dims);
+        } else {
+            left = left.delete(pIn, ((currDim + 1) % dims), dims);
         }
         return this; 
     }
 
     private KDPoint findMin(KDTreeNode currNode, int soughtDim, int currDim, int dims) {
-
-        if (currDim == soughtDim) {
+        if (currNode == null) {
+            return null;
+        } else if ((currNode.getLeft() == null) && (currNode.getRight() == null)) {
+            return currNode.p;
+        } else if (currDim == soughtDim) {
             return findMin(currNode.getLeft(), soughtDim, ((currDim + 1) % dims), dims);
         } else {
             KDPoint lmin = findMin(currNode.getLeft(), soughtDim, ((currDim + 1) % dims), dims);
             KDPoint rmin = findMin(currNode.getRight(), soughtDim, ((currDim + 1) % dims), dims);
-            return min3(lmin, rmin, soughtDim);
+            return min3(lmin, rmin, currNode.p, soughtDim);
         }
     }
 
-    private KDPoint min3(KDPoint lmin, KDPoint rmin, int soughtDim) {
-        int lcoord = lmin.coords[soughtDim];
-        int rcoord = rmin.coords[soughtDim];
-        if (lcoord >= rcoord) {
-            return rmin;
-        } else {
-            return lmin;
+    private KDPoint min3(KDPoint lmin, KDPoint rmin, KDPoint curr, int soughtDim) {
+        int currcoord = curr.coords[soughtDim];
+        KDPoint min = curr;
+        int minCoord = currcoord;
+        if (lmin != null) {
+            int lcoord = lmin.coords[soughtDim];
+            if (lcoord < minCoord) {
+                min = lmin;
+                minCoord = lcoord;
+            }
         }
+        if (rmin != null) {
+            int rcoord = rmin.coords[soughtDim];
+            if (rcoord < minCoord) {
+                min = lmin;
+                minCoord = rcoord;
+            }
+        }
+        return min;
     }
 
 
@@ -150,7 +166,19 @@ public class KDTreeNode {
      * @return true iff pIn was found in the subtree rooted at this, false otherwise.
      */
     public  boolean search(KDPoint pIn, int currDim, int dims){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        int coordinate = pIn.coords[currDim];
+        if (p.equals(pIn)) {
+            return true;
+        } else if (coordinate >= p.coords[currDim]) {
+            if (right != null) {
+                return right.search(pIn, ((currDim + 1) % dims), dims);
+            }
+        } else {
+            if (left != null) {
+                return left.search(pIn, ((currDim + 1) % dims), dims);
+            }
+        }
+        return false;
     }
 
     /**
@@ -256,14 +284,14 @@ public class KDTreeNode {
      * @return The {@link KDPoint} held inside this.
      */
     public KDPoint getPoint(){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        return new KDPoint(p);
     }
 
     public KDTreeNode getLeft(){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        return left;
     }
 
     public KDTreeNode getRight(){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        return right;
     }
 }

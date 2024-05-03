@@ -1,7 +1,9 @@
 import org.junit.*;
 
+import spatial.kdpoint.KDPoint;
 import spatial.knnutils.BoundedPriorityQueue;
 import spatial.knnutils.PriorityQueueNode;
+import spatial.trees.KDTree;
 
 import static org.junit.Assert.*;
 
@@ -37,5 +39,17 @@ public class myTests {
             System.out.println(iterator.next());
         }
     }
+
+    @Test
+    public void testInsertDeleteKDTree() {
+        KDTree kdTree = new KDTree(2);
+        kdTree.insert(new KDPoint(10, 30));
+        kdTree.insert(new KDPoint(12, 18));
+        kdTree.insert(new KDPoint(-20, 300));
+        kdTree.insert(new KDPoint(14, 20));
+        kdTree.delete(new KDPoint(12, 18));
+    }
+
+
 
 }
