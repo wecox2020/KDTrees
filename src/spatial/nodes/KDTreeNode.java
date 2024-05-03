@@ -104,14 +104,14 @@ public class KDTreeNode {
                     return null;
                 } else {
                     KDPoint min = findMin(left, currDim, ((currDim + 1) % dims), dims);
-                    p = min;
+                    p = new KDPoint(min);
                     right = left;
                     left = null;
                     right = right.delete(min, ((currDim + 1) % dims), dims);
                 }
             } else {
                 KDPoint min = findMin(right, currDim, ((currDim + 1) % dims), dims);
-                p = min;
+                p = new KDPoint(min);
                 right = right.delete(min, ((currDim + 1) % dims), dims);
             }
         } else if (coordinate >= p.coords[currDim]) {
@@ -127,8 +127,6 @@ public class KDTreeNode {
             return null;
         } else if ((currNode.getLeft() == null) && (currNode.getRight() == null)) {
             return currNode.p;
-        } else if (currDim == soughtDim) {
-            return findMin(currNode.getLeft(), soughtDim, ((currDim + 1) % dims), dims);
         } else {
             KDPoint lmin = findMin(currNode.getLeft(), soughtDim, ((currDim + 1) % dims), dims);
             KDPoint rmin = findMin(currNode.getRight(), soughtDim, ((currDim + 1) % dims), dims);
@@ -150,7 +148,7 @@ public class KDTreeNode {
         if (rmin != null) {
             int rcoord = rmin.coords[soughtDim];
             if (rcoord < minCoord) {
-                min = lmin;
+                min = rmin;
                 minCoord = rcoord;
             }
         }
@@ -199,9 +197,37 @@ public class KDTreeNode {
      *              {@link KDPoint}s that satisfy our query will fall. The euclideanDistance metric used} is defined by
      *              {@link KDPoint#euclideanDistance(KDPoint)}.
      */
-    public void range(KDPoint anchor, Collection<KDPoint> results,
-                      double range, int currDim , int dims){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+    public void range(KDPoint anchor, Collection<KDPoint> results, double range, int currDim , int dims){
+        int coordinate = anchor.coords[currDim];
+        if (anchor.euclideanDistance(p) <= range) {
+            results.add(p);
+        }
+        if (coordinate >= p.coords[currDim]) {
+            if (right != null) {
+                right.range(anchor, results, range, ((currDim + 1) % dims), dims);
+            }
+            // Check if we can prune
+            if (left != null) {
+                int coord1 = p.coords[currDim];
+                int coord2 = anchor.coords[currDim];
+                if (Math.abs((coord1 - coord2)) <= range) {
+                    left.range(anchor, results, range, ((currDim + 1) % dims), dims);
+                }
+            }
+        } else {
+            if (left != null) {
+                left.range(anchor, results, range, ((currDim + 1) % dims), dims);
+            }
+            // Check if we can prune
+            if (right != null) {
+                int coord1 = p.coords[currDim];
+                int coord2 = anchor.coords[currDim];
+                if (Math.abs((coord1 - coord2)) <= range) {
+                    right.range(anchor, results, range, ((currDim + 1) % dims), dims);
+                }
+            }
+        }
+        
     }
 
 
@@ -275,7 +301,19 @@ public class KDTreeNode {
      * @return the height of the subtree rooted at the current node.
      */
     public int height(){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        int lheight;
+        int rheight;
+        if (left == null) {
+            lheight = -1;
+        } else {
+            lheight = left.height();
+        }
+        if (right == null) {
+            rheight = -1;
+        } else {
+            rheight = right.height();
+        }
+        return 1 + Math.max(lheight, rheight);
     }
 
     /**

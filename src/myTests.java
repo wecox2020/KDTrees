@@ -12,42 +12,37 @@ import java.util.LinkedList;
 import java.util.Iterator;
 
 public class myTests {
-    
-    @Test
-    public void testQueuing() {
-        BoundedPriorityQueue<String> queue = new BoundedPriorityQueue<>(4);
-        queue.enqueue("a", 0);
-        queue.enqueue("b", 1);
-        queue.enqueue("c", 2);
-        queue.enqueue("d", -1);
-        queue.enqueue("e", 3);
-        queue.enqueue("f", -2);
-        String x = queue.dequeue();
-    }
 
     @Test
-    public void testIteratorBPQ() {
-        BoundedPriorityQueue<String> queue = new BoundedPriorityQueue<>(5);
-        queue.enqueue("a", 0);
-        queue.enqueue("b", 1);
-        queue.enqueue("c", 2);
-        queue.enqueue("d", -1);
-        queue.enqueue("e", 3);
-        queue.enqueue("f", -2);
-        Iterator<String> iterator = queue.iterator();
-        while (iterator.hasNext()) {
-            System.out.println(iterator.next());
-        }
-    }
-
-    @Test
-    public void testInsertDeleteKDTree() {
+    public void testKDTreeSearch() {
         KDTree kdTree = new KDTree(2);
         kdTree.insert(new KDPoint(10, 30));
         kdTree.insert(new KDPoint(12, 18));
         kdTree.insert(new KDPoint(-20, 300));
         kdTree.insert(new KDPoint(14, 20));
-        kdTree.delete(new KDPoint(12, 18));
+        kdTree.insert(new KDPoint(-10, -30));
+        kdTree.insert(new KDPoint(12, 18));
+        kdTree.insert(new KDPoint(85, 215));
+        kdTree.insert(new KDPoint(140, 0));
+        assertTrue(kdTree.search(new KDPoint(85, 215)) == true);
+        assertTrue(kdTree.search(new KDPoint(12, 20)) == false);
+
+        kdTree.delete(new KDPoint(85, 215));
+        assertTrue(kdTree.search(new KDPoint(85, 215)) == false);
+    }
+
+    @Test
+    public void testInsertDeleteKDTree() {
+        KDTree kdTree = new KDTree(2);
+        kdTree.insert(new KDPoint(10, 10));
+        kdTree.insert(new KDPoint(9, 9));
+        kdTree.insert(new KDPoint(11, 13));
+        kdTree.insert(new KDPoint(9, 8));
+        kdTree.insert(new KDPoint(11, 14));
+        kdTree.insert(new KDPoint(12, 12));
+        kdTree.insert(new KDPoint(6, 10));
+
+        kdTree.delete(new KDPoint(10, 10));
     }
 
 

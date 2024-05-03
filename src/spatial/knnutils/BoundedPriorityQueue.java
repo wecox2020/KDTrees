@@ -72,7 +72,7 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 			}
 			queue.add(index, node);
 		} else {
-			PriorityQueueNode lastNode = queue.getLast();
+			PriorityQueueNode<T> lastNode = queue.getLast();
 			if (priority < lastNode.getPriority()) {
 				queue.removeLast();
 				enqueue(element, priority);
@@ -82,14 +82,22 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 
 	@Override
 	public T dequeue() {
-		PriorityQueueNode<T> node = queue.remove();
-		return node.getData();
+		if (queue.isEmpty()) {
+			return null;
+		} else {
+			PriorityQueueNode<T> node = queue.remove();
+			return node.getData();
+		}
 	}
 
 	@Override
 	public T first() {
-		PriorityQueueNode<T> node = queue.peekFirst();
-		return node.getData();
+		if (queue.isEmpty()) {
+			return null;
+		} else {
+			PriorityQueueNode<T> node = queue.peekFirst();
+			return node.getData();
+		}
 	}
 	
 	/**
@@ -101,8 +109,12 @@ public class BoundedPriorityQueue<T> implements PriorityQueue<T>{
 	 * @return The maximum priority element in our queue, or null if the queue is empty.
 	 */
 	public T last() {
-		PriorityQueueNode<T> node = queue.peekLast();
-		return node.getData();
+		if (queue.isEmpty()) {
+			return null;
+		} else {
+			PriorityQueueNode<T> node = queue.peekLast();
+			return node.getData();
+		}
 	}
 
 	/**
