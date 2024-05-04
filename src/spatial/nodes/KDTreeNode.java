@@ -227,7 +227,6 @@ public class KDTreeNode {
                 }
             }
         }
-        
     }
 
 
@@ -256,9 +255,40 @@ public class KDTreeNode {
      * @see NNData
      * @see #kNearestNeighbors(int, KDPoint, BoundedPriorityQueue, int, int)
      */
-    public  NNData<KDPoint> nearestNeighbor(KDPoint anchor, int currDim,
-                                            NNData<KDPoint> n, int dims){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+    public  NNData<KDPoint> nearestNeighbor(KDPoint anchor, int currDim, NNData<KDPoint> n, int dims){
+        int coordinate = anchor.coords[currDim];
+        double distance = anchor.euclideanDistance(p);
+        if ((distance < n.getBestDist()) || (n.getBestDist() == -1)) {
+            if (!p.equals(anchor)) {
+                n.update(p, distance);
+            }
+        }
+        if (coordinate >= p.coords[currDim]) {
+            if (right != null) {
+                right.nearestNeighbor(anchor, ((currDim + 1) % dims), n, dims);
+            }
+            // Check if we can prune
+            if (left != null) {
+                int coord1 = p.coords[currDim];
+                int coord2 = anchor.coords[currDim];
+                if (Math.abs((coord1 - coord2)) <= n.getBestDist()) {
+                    left.nearestNeighbor(anchor, ((currDim + 1) % dims), n, dims);
+                }
+            }
+        } else {
+            if (left != null) {
+                left.nearestNeighbor(anchor, ((currDim + 1) % dims), n, dims);
+            }
+            // Check if we can prune
+            if (right != null) {
+                int coord1 = p.coords[currDim];
+                int coord2 = anchor.coords[currDim];
+                if (Math.abs((coord1 - coord2)) <= n.getBestDist()) {
+                    right.nearestNeighbor(anchor, ((currDim + 1) % dims), n, dims);
+                }
+            }
+        }
+        return n;
     }
 
     /**
@@ -288,8 +318,38 @@ public class KDTreeNode {
      *
      * @see BoundedPriorityQueue
      */
-    public  void kNearestNeighbors(int k, KDPoint anchor, BoundedPriorityQueue<KDPoint> queue, int currDim, int dims){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+    public void kNearestNeighbors(int k, KDPoint anchor, BoundedPriorityQueue<KDPoint> queue, int currDim, int dims){
+
+        if (queue.size() < k) {
+            if (!p.equals(anchor)) {
+                queue.enqueue(p, anchor.euclideanDistance(p));
+            }
+        } else {
+            double range = anchor.euclideanDistance(queue.last());
+            double distance = anchor.euclideanDistance(p);
+            if (distance < range) {
+                if (!p.equals(anchor)) {
+                    queue.enqueue(p, distance);
+                }
+            }
+        }
+
+        int coordinate = anchor.coords[currDim];
+        if (coordinate >= p.coords[currDim]) {
+            if (right != null) {
+                right.kNearestNeighbors(k, anchor, queue, ((currDim + 1) % dims), dims);
+            }
+            if (left != null) {
+                left.kNearestNeighbors(k, anchor, queue, ((currDim + 1) % dims), dims);
+            }
+        } else {
+            if (left != null) {
+                left.kNearestNeighbors(k, anchor, queue, ((currDim + 1) % dims), dims);
+            }
+            if (right != null) {
+                right.kNearestNeighbors(k, anchor, queue, ((currDim + 1) % dims), dims);
+            }
+        }
     }
 
     /**
