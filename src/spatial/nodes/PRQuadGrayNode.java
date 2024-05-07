@@ -168,8 +168,14 @@ public class PRQuadGrayNode extends PRQuadNode{
             if (blackChildCount == 1) {
                 return blackChild;
             }
-            if ()
-
+            if (children.size() <= bucketingParam) {
+                PRQuadBlackNode blackNode = new PRQuadBlackNode(centroid, k, bucketingParam);
+                for (KDPoint point : children) {
+                    blackNode.insert(point, k);
+                }
+                return blackNode;
+            }
+            return this;
         }
     }
 
@@ -263,14 +269,52 @@ public class PRQuadGrayNode extends PRQuadNode{
     }
 
     @Override
-    public void range(KDPoint anchor, Collection<KDPoint> results,
-                      double range) {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+    public void range(KDPoint anchor, Collection<KDPoint> results, double range) {
+        int child;
+        if (anchor.coords[0] >= centroid.coords[0]) {
+            if (anchor.coords[1] >= centroid.coords[1]) {
+                child = 1;
+            } else {
+                child = 3;
+            }
+        } else {
+            if (anchor.coords[1] >= centroid.coords[1]) {
+                child = 0;
+            } else {
+                child = 2;
+            }
+        }
+        for (int index = 0; index < 4; index++) {
+            if ((nodes[child] != null) && (nodes[child].doesQuadIntersectAnchorRange(anchor, range))) {
+                nodes[child].range(anchor, results, range);
+            }
+            child = (child + 1) % 4;
+        }
     }
 
     @Override
     public NNData<KDPoint> nearestNeighbor(KDPoint anchor, NNData<KDPoint> n)  {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        int child;
+        if (anchor.coords[0] >= centroid.coords[0]) {
+            if (anchor.coords[1] >= centroid.coords[1]) {
+                child = 1;
+            } else {
+                child = 3;
+            }
+        } else {
+            if (anchor.coords[1] >= centroid.coords[1]) {
+                child = 0;
+            } else {
+                child = 2;
+            }
+        }
+        for (int index = 0; index < 4; index++) {
+            if (nodes[child] != null) {
+                n = nodes[child].nearestNeighbor(anchor, n);
+            }
+            child = (child + 1) % 4;
+        }
+        return n;
     }
 
     @Override

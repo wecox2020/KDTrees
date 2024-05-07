@@ -164,14 +164,24 @@ public class PRQuadBlackNode extends PRQuadNode {
     }
 
     @Override
-    public void range(KDPoint anchor, Collection<KDPoint> results,
-                      double range) {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+    public void range(KDPoint anchor, Collection<KDPoint> results, double range) {
+        for (KDPoint point : points) {
+            if ((anchor.euclideanDistance(point) <= range) && (!anchor.equals(point))) {
+                results.add(point);
+            }
+        }
     }
 
     @Override
     public NNData<KDPoint> nearestNeighbor(KDPoint anchor, NNData<KDPoint> n) {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        for (KDPoint point : points) {
+            if ((anchor.euclideanDistance(point) < n.getBestDist()) || (n.getBestDist() == -1)) {
+                if (!anchor.equals(point)) {
+                    n.update(new KDPoint(point), anchor.euclideanDistance(point));
+                }
+            }
+        }
+        return n;
     }
 
     @Override
