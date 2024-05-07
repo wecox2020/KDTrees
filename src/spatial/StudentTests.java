@@ -200,6 +200,28 @@ public class StudentTests {
     }
 
 
+
+
+
+    @Test
+    public void insertPRQuadTree(){
+        PRQuadTree tree = new PRQuadTree(6, 1);
+        tree.insert(new KDPoint(-10, 2));
+        tree.insert(new KDPoint(-20, -20));
+        tree.insert(new KDPoint(2, 20));
+        tree.insert(new KDPoint(28, -4));
+        tree.insert(new KDPoint(4, 2));
+        tree.insert(new KDPoint(23, -10));
+
+
+        int y = tree.count();
+        int x = tree.height();
+    }
+
+
+
+
+
     @Test
     public void testPRQSimpleQuadTree(){
         prQuadTree = new PRQuadTree(4, 2); // Space from (-8, -8) to (8, 8), bucketing parameter = 2.

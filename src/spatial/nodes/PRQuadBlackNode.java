@@ -4,8 +4,10 @@ import spatial.exceptions.UnimplementedMethodException;
 import spatial.kdpoint.KDPoint;
 import spatial.knnutils.BoundedPriorityQueue;
 import spatial.knnutils.NNData;
+import spatial.trees.CentroidAccuracyException;
 import spatial.trees.PRQuadTree;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 
@@ -32,6 +34,7 @@ public class PRQuadBlackNode extends PRQuadNode {
     /* ******************************************************************** */
     /* *************  PLACE ANY  PRIVATE FIELDS AND METHODS HERE: ************ */
     /* ********************************************************************** */
+    ArrayList<KDPoint> points;
 
     /* *********************************************************************** */
     /* ***************  IMPLEMENT THE FOLLOWING PUBLIC METHODS:  ************ */
@@ -47,9 +50,9 @@ public class PRQuadBlackNode extends PRQuadNode {
      * @see PRQuadTree#PRQuadTree(int, int)
      * @see #PRQuadBlackNode(KDPoint, int, int, KDPoint)
      */
-    public PRQuadBlackNode(KDPoint centroid, int k, int bucketingParam){
+    public PRQuadBlackNode(KDPoint centroid, int k, int bucketingParam) {
         super(centroid, k, bucketingParam); // Call to the super class' protected constructor to properly initialize the object is necessary, even for a constructor that just throws!
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        points = new ArrayList<KDPoint>();
     }
 
     /**
@@ -66,8 +69,10 @@ public class PRQuadBlackNode extends PRQuadNode {
      */
     public PRQuadBlackNode(KDPoint centroid, int k, int bucketingParam, KDPoint p){
         this(centroid, k, bucketingParam); // Call to the current class' other constructor, which takes care of the base class' initialization itself.
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        points = new ArrayList<KDPoint>();
+        points.add(p);
     }
+
 
 
     /**
@@ -95,7 +100,19 @@ public class PRQuadBlackNode extends PRQuadNode {
      */
     @Override
     public PRQuadNode insert(KDPoint p, int k) {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        points.add(p);
+        if (points.size() > bucketingParam) {
+            if (k < 1) {
+                throw new CentroidAccuracyException(null);
+            } else {
+                PRQuadGrayNode grayNode = new PRQuadGrayNode(centroid, k, bucketingParam);
+                for (int index = 0; index < points.size(); index++) {
+                    grayNode.insert(points.get(index), k);
+                }
+                return grayNode;
+            }
+        }
+        return this;
     }
 
 
@@ -111,22 +128,28 @@ public class PRQuadBlackNode extends PRQuadNode {
      */
     @Override
     public PRQuadNode delete(KDPoint p) {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        if (points.contains(p)) {
+            points.remove(p);
+            if (points.size() == 0) {
+                return null;
+            }
+        }
+        return this;
     }
 
     @Override
-    public boolean search(KDPoint p){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+    public boolean search(KDPoint p) {
+        return points.contains(p);
     }
 
     @Override
     public int height(){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        return 0;
     }
 
     @Override
     public int count()  {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        return points.size();
     }
 
     /** Returns all the {@link KDPoint}s contained by the {@link PRQuadBlackNode}. <b>INVARIANT</b>: the returned
@@ -137,7 +160,7 @@ public class PRQuadBlackNode extends PRQuadNode {
      * a null reference.
      */
     public Collection<KDPoint> getPoints()  {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        return points;
     }
 
     @Override

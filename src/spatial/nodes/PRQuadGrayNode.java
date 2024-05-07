@@ -4,8 +4,10 @@ import spatial.exceptions.UnimplementedMethodException;
 import spatial.kdpoint.KDPoint;
 import spatial.knnutils.BoundedPriorityQueue;
 import spatial.knnutils.NNData;
+import spatial.trees.CentroidAccuracyException;
 import spatial.trees.PRQuadTree;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /** <p>A {@link PRQuadGrayNode} is a gray (&quot;mixed&quot;) {@link PRQuadNode}. It
@@ -27,6 +29,7 @@ public class PRQuadGrayNode extends PRQuadNode{
     /* ******************************************************************** */
     /* *************  PLACE ANY  PRIVATE FIELDS AND METHODS HERE: ************ */
     /* ********************************************************************** */
+    PRQuadNode[] nodes;
 
     /* *********************************************************************** */
     /* ***************  IMPLEMENT THE FOLLOWING PUBLIC METHODS:  ************ */
@@ -42,7 +45,7 @@ public class PRQuadGrayNode extends PRQuadNode{
      */
     public PRQuadGrayNode(KDPoint centroid, int k, int bucketingParam){
         super(centroid, k, bucketingParam); // Call to the super class' protected constructor to properly initialize the object!
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        nodes = new PRQuadNode[4];
     }
 
 
@@ -61,7 +64,49 @@ public class PRQuadGrayNode extends PRQuadNode{
      */
     @Override
     public PRQuadNode insert(KDPoint p, int k) {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        // Determine appropriate child node
+        int child;
+        if (p.coords[0] >= centroid.coords[0]) {
+            if (p.coords[1] >= centroid.coords[1]) {
+                child = 1;
+            } else {
+                child = 3;
+            }
+        } else {
+            if (p.coords[1] >= centroid.coords[1]) {
+                child = 0;
+            } else {
+                child = 2;
+            }        
+        }
+        // Insert point
+        if (nodes[child] == null) {
+            KDPoint childCentroid = computeCentroid(child, new KDPoint(centroid), k);
+            nodes[child] = new PRQuadBlackNode(childCentroid, k, bucketingParam, p);
+        } else {
+            nodes[child] = nodes[child].insert(p, (k - 1));
+        }
+        return this;
+    }
+
+    private KDPoint computeCentroid(int child, KDPoint centroid, int k) {
+        int xcoord = centroid.coords[0];
+        int ycoord = centroid.coords[1];
+
+        if (child == 0) {
+            xcoord = xcoord - (int) Math.pow(2, (k - 2));
+            ycoord = ycoord + (int) Math.pow(2, (k - 2));
+        } else if (child == 1) {
+            xcoord = xcoord + (int) Math.pow(2, (k - 2));
+            ycoord = ycoord + (int) Math.pow(2, (k - 2));
+        } else if (child == 2) {
+            xcoord = xcoord - (int) Math.pow(2, (k - 2));
+            ycoord = ycoord - (int) Math.pow(2, (k - 2));
+        } else {
+            xcoord = xcoord + (int) Math.pow(2, (k - 2));
+            ycoord = ycoord - (int) Math.pow(2, (k - 2));
+        }
+        return new KDPoint(xcoord, ycoord);
     }
 
     /**
@@ -88,22 +133,119 @@ public class PRQuadGrayNode extends PRQuadNode{
      */
     @Override
     public PRQuadNode delete(KDPoint p) {
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        int child;
+        if (p.coords[0] >= centroid.coords[0]) {
+            if (p.coords[1] >= centroid.coords[1]) {
+                child = 1;
+            } else {
+                child = 3;
+            }
+        } else {
+            if (p.coords[1] >= centroid.coords[1]) {
+                child = 0;
+            } else {
+                child = 2;
+            }
+        }
+
+        if (nodes[child] == null) {
+            return this;
+        } else {
+            nodes[child] = nodes[child].delete(p);
+            ArrayList<KDPoint> children = new ArrayList<>();
+            int blackChildCount = 0;
+            PRQuadBlackNode blackChild = null;
+            for (PRQuadNode node : nodes) {
+                if (node instanceof PRQuadGrayNode) {
+                    return this;
+                } else if (node instanceof PRQuadBlackNode) {
+                    PRQuadBlackNode newNode = (PRQuadBlackNode) node;
+                    blackChildCount++;
+                    blackChild = newNode;
+                    children.addAll(newNode.getPoints());
+                }
+            }
+            if (blackChildCount == 1) {
+                return blackChild;
+            }
+            if ()
+
+        }
     }
 
     @Override
     public boolean search(KDPoint p){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        int child;
+        if (p.coords[0] >= centroid.coords[0]) {
+            if (p.coords[1] >= centroid.coords[1]) {
+                child = 1;
+            } else {
+                child = 3;
+            }
+        } else {
+            if (p.coords[1] >= centroid.coords[1]) {
+                child = 0;
+            } else {
+                child = 2;
+            }
+        }
+        if (nodes[child] == null) {
+            return false;
+        } else {
+            return nodes[child].search(p);
+        }
     }
 
     @Override
     public int height(){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        int height0, height1, height2, height3;
+        if (nodes[0] == null) {
+            height0 = -1;
+        } else {
+            height0 = nodes[0].height();
+        }
+        if (nodes[1] == null) {
+            height1 = -1;
+        } else {
+            height1 = nodes[1].height();
+        }
+        if (nodes[2] == null) {
+            height2 = -1;
+        } else {
+            height2 = nodes[2].height();
+        }
+        if (nodes[3] == null) {
+            height3 = -1;
+        } else {
+            height3 = nodes[3].height();
+        }
+        return (1 + Math.max(height0, Math.max(height1, Math.max(height2, height3))));
     }
 
     @Override
     public int count(){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        int count0, count1, count2, count3;
+        if (nodes[0] == null) {
+            count0 = 0;
+        } else {
+            count0 = nodes[0].count();
+        }
+        if (nodes[1] == null) {
+            count1 = 0;
+        } else {
+            count1 = nodes[1].count();
+        }
+        if (nodes[2] == null) {
+            count2 = 0;
+        } else {
+            count2 = nodes[2].count();
+        }
+        if (nodes[3] == null) {
+            count3 = 0;
+        } else {
+            count3 = nodes[3].count();
+        }
+        return count0 + count1 + count2 + count3;
     }
 
     /**
@@ -117,7 +259,7 @@ public class PRQuadGrayNode extends PRQuadNode{
      * </ol>
      */
     public PRQuadNode[] getChildren(){
-        throw new UnimplementedMethodException(); // ERASE THIS LINE AFTER YOU IMPLEMENT THIS METHOD!
+        return nodes;
     }
 
     @Override
